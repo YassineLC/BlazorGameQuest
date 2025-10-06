@@ -1,0 +1,120 @@
+@page "/auth/login"
+
+<PageTitle>Connexion - BlazorGameQuest</PageTitle>
+
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="auth-card">
+                    <div class="text-center mb-4">
+                        <h2>🚪 Connexion</h2>
+                        <p class="text-muted">Connectez-vous pour commencer votre aventure</p>
+                    </div>
+
+                    <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <InputText id="email" class="form-control" @bind-Value="loginModel.Email" placeholder="votre@email.com" />
+                            <ValidationMessage For="@(() => loginModel.Email)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+                            <ValidationMessage For="@(() => loginModel.Password)" />
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="loginModel.RememberMe" />
+                            <label class="form-check-label" for="rememberMe">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @errorMessage
+                            </div>
+                        }
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                Se Connecter
+                            </button>
+                        </div>
+                    </EditForm>
+
+                    <div class="text-center mt-3">
+                        <p>
+                            Pas encore de compte ? 
+                            <a href="/auth/register">S'inscrire</a>
+                        </p>
+                        <a href="/" class="text-muted">← Retour à l'accueil</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel loginModel = new();
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            // TODO: Implémenter l'authentification
+            // var result = await AuthService.LoginAsync(loginModel);
+            // if (result.Success)
+            // {
+            //     NavigationManager.NavigateTo("/player/dashboard");
+            // }
+            // else
+            // {
+            //     errorMessage = result.ErrorMessage;
+            // }
+
+            // Redirection temporaire - à remplacer par la vraie authentification
+            await Task.Delay(1000);
+            NavigationManager.NavigateTo("/player/dashboard");
+        }
+        catch (Exception)
+        {
+            errorMessage = "Erreur de connexion. Authentification à implémenter.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "L'email est requis")]
+        [EmailAddress(ErrorMessage = "Format d'email invalide")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Le mot de passe est requis")]
+        [MinLength(6, ErrorMessage = "Le mot de passe doit contenir au moins 6 caractères")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; }
+    }
+}
+
+@inject NavigationManager NavigationManager

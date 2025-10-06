@@ -1,0 +1,69 @@
+@page "/game/new-adventure"
+
+<div class="adventure-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="adventure-card">
+                    <div class="text-center mb-4">
+                        <h1>⚔️ Nouvelle Aventure</h1>
+                        <p class="lead">Préparez-vous à explorer un donjon mystérieux...</p>
+                    </div>
+
+                    <div class="adventure-intro">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="preview-card">
+                                    <h3>🏰 Configuration du Donjon</h3>
+                                    <p><strong>Nombre de salles :</strong> @dungeonRooms salles</p>
+                                    <p><strong>Difficulté :</strong> @dungeonDifficulty</p>
+                                    <p><strong>Système de récompenses :</strong> <em>À venir</em></p>
+                                    <p><strong>Mécaniques de jeu :</strong> <em>À venir</em></p>
+                                    <p><strong>Types d'ennemis :</strong> <em>À venir</em></p>
+                                    <p><strong>Objets et équipements :</strong> <em>À venir</em></p>
+                                    
+                                    <div class="alert alert-info mt-3">
+                                        <i class="bi bi-info-circle"></i>
+                                        <strong>Note :</strong> La logique de jeu complète sera implémentée dans une version ultérieure.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="/game/room/1" class="btn btn-success btn-lg me-3">
+                                🚪 Entrer dans le Donjon
+                            </a>
+                            <a href="/player/dashboard" class="btn btn-outline-secondary">
+                                ← Retour au Tableau de Bord
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int dungeonRooms;
+    private string dungeonDifficulty = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        GenerateDungeonPreview();
+    }
+
+    private void GenerateDungeonPreview()
+    {
+        // TODO: Appel API pour obtenir les paramètres de donjon
+        // var dungeonConfig = await GameService.GenerateDungeonPreviewAsync();
+        
+        // Valeurs temporaires - à remplacer par l'API
+        var random = new Random();
+        dungeonRooms = random.Next(3, 6); // Entre 3 et 5 salles
+        
+        var difficulties = new[] { "Facile", "Normale", "Difficile" };
+        dungeonDifficulty = difficulties[random.Next(difficulties.Length)];
+    }
+}

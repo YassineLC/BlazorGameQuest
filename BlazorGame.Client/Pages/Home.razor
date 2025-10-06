@@ -1,0 +1,105 @@
+﻿@page "/"
+@page "/home"
+
+<PageTitle>BlazorGameQuest - Accueil</PageTitle>
+
+<div class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 mb-4">🏰 BlazorGameQuest</h1>
+                <p class="lead mb-4">
+                    Incarnez un aventurier et explorez des donjons générés aléatoirement.
+                    Faites des choix stratégiques pour survivre et gagner des points !
+                </p>
+                
+                @if (isAuthenticated)
+                {
+                    <div class="d-grid gap-2 d-md-block">
+                        <a href="/player/dashboard" class="btn btn-primary btn-lg me-2">
+                            📊 Mon Tableau de Bord
+                        </a>
+                        <a href="/game/new-adventure" class="btn btn-success btn-lg">
+                            ⚔️ Nouvelle Aventure
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-grid gap-2 d-md-block">
+                        <a href="/auth/login" class="btn btn-primary btn-lg me-2">
+                            🚪 Se Connecter
+                        </a>
+                        <a href="/auth/register" class="btn btn-outline-primary btn-lg">
+                            📝 S'Inscrire
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-card h-100">
+                    <h3>🎲 Donjons Aléatoires</h3>
+                    <p>Chaque aventure est unique avec des salles générées aléatoirement et des défis variés.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-card h-100">
+                    <h3>⚔️ Choix Stratégiques</h3>
+                    <p>Combattre, fouiller, fuir... Vos décisions déterminent votre survie et vos gains.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="feature-card h-100">
+                    <h3>🏆 Classements</h3>
+                    <p>Comparez vos scores avec les autres aventuriers et grimpez dans le classement.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="rules-section py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="text-center mb-4">📜 Règles du Jeu</h2>
+                <div class="rules-content">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Objectif :</strong> Explorez un donjon de 3 à 5 salles et accumulez le maximum de points
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Choix disponibles :</strong> Dans chaque salle, choisissez entre combattre, fouiller ou fuir
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Risques :</strong> Certains choix peuvent vous faire perdre des points ou vous "tuer"
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Récompenses :</strong> Trouvez des trésors, gagnez des points de combat, découvrez des objets rares
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Fin de partie :</strong> L'aventure se termine quand vous terminez toutes les salles ou si vous "mourez"
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isAuthenticated = false; // TODO: Implémenter la vérification d'auth
+
+    protected override void OnInitialized()
+    {
+        // TODO: Vérifier l'état d'authentification
+        // isAuthenticated = AuthService.IsAuthenticated();
+    }
+}

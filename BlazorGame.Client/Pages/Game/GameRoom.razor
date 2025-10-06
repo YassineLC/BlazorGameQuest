@@ -1,0 +1,74 @@
+@page "/game/room/{RoomId:int}"
+
+<div class="text-game-container">
+    <!-- Ambiance de fond -->
+    <div class="background-atmosphere">
+        <div class="fog-layer"></div>
+        <div class="particle-effects"></div>
+    </div>
+
+    <!-- Zone de texte principale -->
+    <div class="story-section">
+        <div class="story-text">
+            <h2 class="chapter-title">🏰 Salle @RoomId - Crypte Mystérieuse</h2>
+            <div class="narrative-text">
+                Vous pénétrez dans une salle sombre et humide. Des torches vacillantes projettent des ombres 
+                dansantes sur les murs de pierre ancienne. Au centre de la pièce, un coffre mystérieux attire 
+                votre attention, mais vous entendez des grognements inquiétants dans l'obscurité...
+                <br><br>
+                L'air est lourd et chargé de magie. Trois chemins s'offrent à vous. Que décidez-vous de faire ?
+            </div>
+        </div>
+    </div>
+
+    <!-- Zone de choix -->
+    <div class="choices-section">
+        <div class="choice-bubble choice-1">
+            <div class="choice-icon">⚔️</div>
+            <div class="choice-text">
+                <strong>Combattre</strong>
+                <p>Dégainer votre épée et affronter les créatures dans l'ombre</p>
+            </div>
+        </div>
+
+        <div class="choice-bubble choice-2">
+            <div class="choice-icon">🔍</div>
+            <div class="choice-text">
+                <strong>Explorer</strong>
+                <p>Examiner prudemment le coffre et fouiller la salle</p>
+            </div>
+        </div>
+
+        <div class="choice-bubble choice-3">
+            <div class="choice-icon">🏃</div>
+            <div class="choice-text">
+                <strong>Fuir</strong>
+                <p>Battre en retraite vers la sortie la plus proche</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre d'état en bas -->
+    <div class="status-bar">
+        <div class="stat">
+            <span class="stat-label">❤️ VIE</span>
+            <div class="stat-value">85/100</div>
+        </div>
+        <div class="stat">
+            <span class="stat-label">✨ MANA</span>
+            <div class="stat-value">60/100</div>
+        </div>
+        <div class="stat">
+            <span class="stat-label">🏆 SCORE</span>
+            <div class="stat-value">1,250</div>
+        </div>
+        <div class="stat">
+            <span class="stat-label">🗝️ CLÉS</span>
+            <div class="stat-value">2</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int RoomId { get; set; }
+}

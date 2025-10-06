@@ -1,0 +1,130 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">🏰 BlazorGameQuest</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> 🏠 Accueil
+            </NavLink>
+        </div>
+        
+        @* Menu Joueur *@
+        <div class="nav-item px-3 mt-2">
+            <div class="nav-section-title">👤 Espace Joueur</div>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="player/dashboard">
+                <span class="bi bi-speedometer2" aria-hidden="true"></span> 📊 Tableau de Bord
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="game/new-adventure">
+                <span class="bi bi-play-circle" aria-hidden="true"></span> ⚔️ Nouvelle Aventure
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="player/history">
+                <span class="bi bi-clock-history" aria-hidden="true"></span> 📜 Mon Historique
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="leaderboard">
+                <span class="bi bi-trophy" aria-hidden="true"></span> 🏆 Classements
+            </NavLink>
+        </div>
+
+        @* Menu Admin (conditionnel) *@
+        @if (isAdmin)
+        {
+            <div class="nav-item px-3 mt-3">
+                <div class="nav-section-title">⚙️ Administration</div>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/dashboard">
+                    <span class="bi bi-gear" aria-hidden="true"></span> 🔧 Admin Dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/players">
+                    <span class="bi bi-people" aria-hidden="true"></span> 👥 Gestion Joueurs
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin/games">
+                    <span class="bi bi-controller" aria-hidden="true"></span> 🎮 Gestion Parties
+                </NavLink>
+            </div>
+        }
+
+        @* Menu Authentification *@
+        <div class="nav-item px-3 mt-3">
+            <div class="nav-section-title">🔐 Compte</div>
+        </div>
+        @if (!isAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/login">
+                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> 🚪 Connexion
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/register">
+                    <span class="bi bi-person-plus" aria-hidden="true"></span> 📝 Inscription
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/profile">
+                    <span class="bi bi-person-circle" aria-hidden="true"></span> 👤 Mon Profil
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <button class="nav-link btn btn-link text-start" @onclick="Logout">
+                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> 🚪 Déconnexion
+                </button>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private bool isAuthenticated = false; // TODO: Récupérer depuis le service d'auth
+    private bool isAdmin = false; // TODO: Récupérer depuis le service d'auth
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override void OnInitialized()
+    {
+        // TODO: Vérifier l'état d'authentification
+        // isAuthenticated = AuthService.IsAuthenticated();
+        // isAdmin = AuthService.IsAdmin();
+        
+        // État temporaire - à remplacer par la vraie authentification
+        isAuthenticated = false; // Par défaut non connecté
+        isAdmin = false;
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void Logout()
+    {
+        // TODO: Implémenter la déconnexion
+        // await AuthService.LogoutAsync();
+        isAuthenticated = false;
+        isAdmin = false;
+        StateHasChanged();
+    }
+}

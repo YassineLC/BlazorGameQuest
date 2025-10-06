@@ -1,0 +1,177 @@
+@page "/player/dashboard"
+
+<PageTitle>Tableau de Bord - BlazorGameQuest</PageTitle>
+
+<div class="dashboard-container">
+    <div class="container">
+        <!-- Header avec salutation -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="welcome-card">
+                    <h1>👋 Bienvenue, @playerName !</h1>
+                    <p class="lead">Prêt pour une nouvelle aventure ?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="action-card h-100">
+                    <div class="card-body text-center">
+                        <h3>⚔️ Nouvelle Aventure</h3>
+                        <p>Explorez un nouveau donjon et testez votre courage !</p>
+                        <a href="/game/new-adventure" class="btn btn-primary btn-lg">
+                            Commencer l'Aventure
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="action-card h-100">
+                    <div class="card-body text-center">
+                        <h3>📊 Mes Statistiques</h3>
+                        <p>Score total : <strong>@totalScore pts</strong></p>
+                        <p>Parties jouées : <strong>@gamesPlayed</strong></p>
+                        @if (playerRank > 0)
+                        {
+                            <p>Rang : <strong>#@playerRank</strong></p>
+                        }
+                        else
+                        {
+                            <p>Rang : <em>À venir</em></p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques détaillées -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="stats-card">
+                    <h3>📈 Historique des Parties</h3>
+                    @if (recentGames.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Salles Explorées</th>
+                                        <th>Score</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var game in recentGames)
+                                    {
+                                        <tr>
+                                            <td>@game.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@game.RoomsExplored</td>
+                                            <td>@game.Score pts</td>
+                                            <td>
+                                                <span class="badge @(game.IsCompleted ? "bg-success" : "bg-warning")">
+                                                    @(game.IsCompleted ? "✅ Terminé" : "💀 Mort")
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center">
+                            <a href="/player/history" class="btn btn-outline-primary">
+                                Voir l'Historique Complet
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <p class="text-muted">Aucune partie jouée pour le moment.</p>
+                            <a href="/game/new-adventure" class="btn btn-primary">
+                                Jouer Votre Première Partie
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="leaderboard-card">
+                    <h3>🏆 Top Joueurs</h3>
+                    @if (topPlayers.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @for (int i = 0; i < topPlayers.Count && i < 5; i++)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>
+                                        @if (i == 0) { <text>🥇</text> }
+                                        else if (i == 1) { <text>🥈</text> }
+                                        else if (i == 2) { <text>🥉</text> }
+                                        else { <text>@(i + 1).</text> }
+                                        @topPlayers[i].Name
+                                    </span>
+                                    <span class="badge bg-primary">@topPlayers[i].Score pts</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="/leaderboard" class="btn btn-outline-success btn-sm">
+                                Voir Classement Complet
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Classement à venir...</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string playerName = "Aventurier"; // TODO: Récupérer depuis l'auth
+    private int totalScore = 0; // À récupérer depuis l'API
+    private int gamesPlayed = 0; // À récupérer depuis l'API  
+    private int playerRank = 0; // À récupérer depuis l'API
+
+    private List<GameSummary> recentGames = new();
+    private List<PlayerScore> topPlayers = new();
+
+    protected override void OnInitialized()
+    {
+        LoadRecentGames();
+        LoadTopPlayers();
+    }
+
+    private void LoadRecentGames()
+    {
+        // TODO: Appel API - await GameService.GetRecentGamesAsync()
+        recentGames = new List<GameSummary>(); // À venir
+    }
+
+    private void LoadTopPlayers()
+    {
+        // TODO: Appel API - await LeaderboardService.GetTopPlayersAsync()
+        topPlayers = new List<PlayerScore>(); // À venir
+    }
+
+    public class GameSummary
+    {
+        public DateTime Date { get; set; }
+        public int RoomsExplored { get; set; }
+        public int Score { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+
+    public class PlayerScore
+    {
+        public string Name { get; set; } = string.Empty;
+        public int Score { get; set; }
+    }
+}

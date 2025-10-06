@@ -1,0 +1,67 @@
+@page "/coming-soon"
+
+<PageTitle>Fonctionnalité À Venir - BlazorGameQuest</PageTitle>
+
+<div class="coming-soon-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="coming-soon-card text-center">
+                    <div class="mb-4">
+                        <h1 class="display-4">🚧</h1>
+                        <h2>Fonctionnalité À Venir</h2>
+                        <p class="lead">Cette fonctionnalité est en cours de développement et sera disponible prochainement.</p>
+                    </div>
+
+                    <div class="features-preview mb-4">
+                        <h4>Ce qui arrive bientôt :</h4>
+                        <ul class="list-unstyled">
+                            <li>🎮 Système de jeu complet</li>
+                            <li>🏰 Exploration de donjons</li>
+                            <li>⚔️ Combats tactiques</li>
+                            <li>🏆 Système de scores</li>
+                            <li>📈 Progression du joueur</li>
+                        </ul>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <a href="/player/dashboard" class="btn btn-primary btn-lg me-2">
+                            📊 Tableau de Bord
+                        </a>
+                        <a href="/" class="btn btn-outline-secondary btn-lg">
+                            🏠 Accueil
+                        </a>
+                    </div>
+
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            Restez connecté pour découvrir les nouvelles fonctionnalités !
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .coming-soon-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin-top: -1.1rem;
+    }
+
+    .coming-soon-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 3rem 2rem;
+    }
+
+    .features-preview ul li {
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+</style>
