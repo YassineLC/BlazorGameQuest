@@ -2,7 +2,7 @@
 
 Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expérience immersive dans un univers de style Metroidvania.
 
-![Build Status](https://github.com/votre-username/BlazorGameQuest/workflows/Build%20and%20Deploy/badge.svg)
+![Build Status](https://github.com/YassineLC/BlazorGameQuest/workflows/Build/badge.svg)
 ![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
