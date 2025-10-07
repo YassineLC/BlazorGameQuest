@@ -41,13 +41,13 @@ function Start-Service {
 }
 
 # Démarrer les services dans l'ordre
-$authProcess = Start-Service -ServiceName "AuthenticationServices" -Directory "AuthenticationServices" -Port 5003
+$authProcess = Start-Service -ServiceName "AuthenticationServices" -Directory "src/AuthenticationServices" -Port 5003
 if (-not $authProcess) { exit 1 }
 
-$gameProcess = Start-Service -ServiceName "GameService" -Directory "GameService" -Port 5002
+$gameProcess = Start-Service -ServiceName "GameService" -Directory "src/GameService" -Port 5002
 if (-not $gameProcess) { exit 1 }
 
-$apiProcess = Start-Service -ServiceName "ApiGateway" -Directory "ApiGateway" -Port 5001
+$apiProcess = Start-Service -ServiceName "ApiGateway" -Directory "src/ApiGateway" -Port 5001
 if (-not $apiProcess) { exit 1 }
 
 # Attendre un peu plus pour l'API Gateway
@@ -55,7 +55,7 @@ Start-Sleep -Seconds 2
 
 # Démarrer le client Blazor
 Write-Host "Démarrage BlazorGame.Client sur http://localhost:5000" -ForegroundColor Yellow
-$clientProcess = Start-Process powershell -ArgumentList "-WindowStyle", "Minimized", "-Command", "cd 'BlazorGame.Client'; dotnet run --urls http://localhost:5000" -PassThru
+$clientProcess = Start-Process powershell -ArgumentList "-WindowStyle", "Minimized", "-Command", "cd 'src/BlazorGame.Client'; dotnet run --urls http://localhost:5000" -PassThru
 
 Start-Sleep -Seconds 3
 
