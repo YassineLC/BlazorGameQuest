@@ -45,7 +45,9 @@ bld/
 project.lock.json
 project.fragment.lock.json
 artifacts/
-**/Properties/launchSettings.json
+# Note: launchSettings.json est inclus pour ce projet car les microservices
+# ont besoin de ports spécifiques pour communiquer entre eux
+# **/Properties/launchSettings.json
 
 # StyleCop
 StyleCopReport.xml

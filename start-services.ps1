@@ -2,31 +2,73 @@
 # Démarre tous les microservices et le client Blazor en arrière-plan
 
 Write-Host "Démarrage des services BlazorGameQuest..." -ForegroundColor Green
+Write-Host "Vérification des prérequis..." -ForegroundColor Cyan
 
-# Démarrer AuthenticationServices (port 5003)
-Write-Host "Démarrage AuthenticationServices sur http://localhost:5003" -ForegroundColor Yellow
-$authProcess = Start-Process powershell -ArgumentList "-WindowStyle", "Hidden", "-Command", "cd 'AuthenticationServices'; dotnet run" -PassThru
+# Vérifier que .NET est installé
+if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
+    Write-Host "ERREUR: .NET n'est pas installé ou n'est pas dans le PATH" -ForegroundColor Red
+    exit 1
+}
 
-# Attendre 2 secondes
+# Arrêter tous les processus dotnet existants
+Write-Host "Arrêt des processus dotnet existants..." -ForegroundColor Yellow
+Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Fonction pour démarrer un service et vérifier qu'il démarre
+function Start-Service {
+    param (
+        [string]$ServiceName,
+        [string]$Directory,
+        [int]$Port
+    )
+    
+    Write-Host "Démarrage $ServiceName sur http://localhost:$Port" -ForegroundColor Yellow
+    
+    # Changer vers le répertoire du service et démarrer
+    $process = Start-Process powershell -ArgumentList "-WindowStyle", "Minimized", "-Command", "cd '$Directory'; dotnet run --urls http://localhost:$Port" -PassThru
+    
+    # Attendre un moment pour que le service démarre
+    Start-Sleep -Seconds 3
+    
+    # Vérifier si le processus est toujours actif
+    if ($process.HasExited) {
+        Write-Host "ERREUR: $ServiceName n'a pas pu démarrer" -ForegroundColor Red
+        return $false
+    }
+    
+    Write-Host "$ServiceName démarré avec succès (PID: $($process.Id))" -ForegroundColor Green
+    return $process
+}
+
+# Démarrer les services dans l'ordre
+$authProcess = Start-Service -ServiceName "AuthenticationServices" -Directory "AuthenticationServices" -Port 5003
+if (-not $authProcess) { exit 1 }
+
+$gameProcess = Start-Service -ServiceName "GameService" -Directory "GameService" -Port 5002
+if (-not $gameProcess) { exit 1 }
+
+$apiProcess = Start-Service -ServiceName "ApiGateway" -Directory "ApiGateway" -Port 5001
+if (-not $apiProcess) { exit 1 }
+
+# Attendre un peu plus pour l'API Gateway
 Start-Sleep -Seconds 2
 
-# Démarrer GameService (port 5002)
-Write-Host "Démarrage GameService sur http://localhost:5002" -ForegroundColor Yellow
-$gameProcess = Start-Process powershell -ArgumentList "-WindowStyle", "Hidden", "-Command", "cd 'GameService'; dotnet run" -PassThru
+# Démarrer le client Blazor
+Write-Host "Démarrage BlazorGame.Client sur http://localhost:5000" -ForegroundColor Yellow
+$clientProcess = Start-Process powershell -ArgumentList "-WindowStyle", "Minimized", "-Command", "cd 'BlazorGame.Client'; dotnet run --urls http://localhost:5000" -PassThru
 
-# Attendre 2 secondes
-Start-Sleep -Seconds 2
-
-# Démarrer ApiGateway (port 5001)
-Write-Host "Démarrage ApiGateway sur http://localhost:5001" -ForegroundColor Yellow
-$apiProcess = Start-Process powershell -ArgumentList "-WindowStyle", "Hidden", "-Command", "cd 'ApiGateway'; dotnet run" -PassThru
-
-# Attendre 3 secondes
 Start-Sleep -Seconds 3
 
-# Démarrer BlazorGame.Client (port 5000)
-Write-Host "Démarrage BlazorGame.Client sur http://localhost:5000" -ForegroundColor Yellow
-$clientProcess = Start-Process powershell -ArgumentList "-WindowStyle", "Hidden", "-Command", "cd 'BlazorGame.Client'; dotnet run" -PassThru
+if ($clientProcess.HasExited) {
+    Write-Host "ERREUR: BlazorGame.Client n'a pas pu démarrer" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "BlazorGame.Client démarré avec succès (PID: $($clientProcess.Id))" -ForegroundColor Green
+
+# Attendre que tous les services soient prêts
+Write-Host "Attente que tous les services soient prêts..." -ForegroundColor Cyan
+Start-Sleep -Seconds 5
 
 Write-Host ""
 Write-Host "Tous les services sont en cours de démarrage..." -ForegroundColor Green
