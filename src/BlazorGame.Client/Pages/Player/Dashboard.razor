@@ -8,7 +8,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="welcome-card">
-                    <h1>👋 Bienvenue, @playerName !</h1>
+                    <h1>Bienvenue, @playerName !</h1>
                     <p class="lead">Prêt pour une nouvelle aventure ?</p>
                 </div>
             </div>
@@ -19,7 +19,7 @@
             <div class="col-md-6 mb-3">
                 <div class="action-card h-100">
                     <div class="card-body text-center">
-                        <h3>⚔️ Nouvelle Aventure</h3>
+                        <h3>Nouvelle Aventure</h3>
                         <p>Explorez un nouveau donjon et testez votre courage !</p>
                         <a href="/game/new-adventure" class="btn btn-primary btn-lg">
                             Commencer l'Aventure
@@ -30,7 +30,7 @@
             <div class="col-md-6 mb-3">
                 <div class="action-card h-100">
                     <div class="card-body text-center">
-                        <h3>📊 Mes Statistiques</h3>
+                        <h3>Mes Statistiques</h3>
                         <p>Score total : <strong>@totalScore pts</strong></p>
                         <p>Parties jouées : <strong>@gamesPlayed</strong></p>
                         @if (playerRank > 0)
@@ -50,7 +50,7 @@
         <div class="row mb-4">
             <div class="col-lg-8">
                 <div class="stats-card">
-                    <h3>📈 Historique des Parties</h3>
+                    <h3>Historique des Parties</h3>
                     @if (recentGames.Any())
                     {
                         <div class="table-responsive">
@@ -100,7 +100,7 @@
             
             <div class="col-lg-4">
                 <div class="leaderboard-card">
-                    <h3>🏆 Top Joueurs</h3>
+                    <h3>Top Joueurs</h3>
                     @if (topPlayers.Any())
                     {
                         <div class="list-group list-group-flush">

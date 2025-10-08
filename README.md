@@ -103,6 +103,18 @@ BlazorGameQuest/
 - **Base de données** : Entity Framework Core In-Memory (pour l'instant ?)
 - **Authentification** : Keycloak (à intégrer)
 - **Conteneurisation** : Docker (à implémenter)
+## Tests Unitaires
+
+BlazorGameQuest utilise **BUnit** et **xUnit** pour tester les composants Blazor
+
+### Lancer tous les tests
+
+Depuis le répertoire racine du projet, on exécute :
+
+```powershell
+cd BlazorGame.Client.Tests
+dotnet test
+
 
 ## Contributeurs
 

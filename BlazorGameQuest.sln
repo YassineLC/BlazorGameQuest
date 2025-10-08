@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameService", "src\GameServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "src\ApiGateway\ApiGateway.csproj", "{44793435-2708-49E8-A4D6-827CF17F10FF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorGame.Client.Tests", "tests\BlazorGame.Client.Tests\BlazorGame.Client.Tests.csproj", "{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,8 +87,23 @@ Global
 		{44793435-2708-49E8-A4D6-827CF17F10FF}.Release|x64.Build.0 = Release|Any CPU
 		{44793435-2708-49E8-A4D6-827CF17F10FF}.Release|x86.ActiveCfg = Release|Any CPU
 		{44793435-2708-49E8-A4D6-827CF17F10FF}.Release|x86.Build.0 = Release|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Debug|x64.Build.0 = Debug|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Debug|x86.Build.0 = Debug|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Release|x64.ActiveCfg = Release|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Release|x64.Build.0 = Release|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Release|x86.ActiveCfg = Release|Any CPU
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BD290264-D7F0-4FE5-9DF1-92EFF881EF08} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
