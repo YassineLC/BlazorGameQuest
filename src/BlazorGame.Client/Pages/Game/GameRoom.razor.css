@@ -204,12 +204,7 @@
     box-shadow: 0 10px 25px rgba(147, 112, 219, 0.4);
 }
 
-.choice-icon {
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 10px;
-    animation: iconBounce 2s ease-in-out infinite;
-}
+
 
 @keyframes iconBounce {
     0%, 100% { transform: translateY(0); }
@@ -365,9 +360,7 @@ html, body {
         padding: 8px;
     }
     
-    .choice-icon {
-        font-size: 2rem;
-    }
+
     
     .chapter-title {
         font-size: 1.2rem;

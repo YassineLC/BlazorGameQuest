@@ -10,33 +10,28 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>Accueil
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Accueil
             </NavLink>
         </div>
-        
+
         @* Menu Joueur *@
         <div class="nav-item px-3 mt-2">
-            <div class="nav-section-title">👤 Espace Joueur</div>
+            <div class="nav-section-title">Espace Joueur</div>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="player/dashboard">
-                <span class="bi bi-speedometer2" aria-hidden="true"></span> 📊 Tableau de Bord
+            <NavLink class="nav-link" href="player/dashboard">Tableau de Bord
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="game/new-adventure">
-                <span class="bi bi-play-circle" aria-hidden="true"></span> ⚔️ Nouvelle Aventure
+            <NavLink class="nav-link" href="game/new-adventure">Nouvelle Aventure
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="player/history">
-                <span class="bi bi-clock-history" aria-hidden="true"></span> 📜 Mon Historique
+            <NavLink class="nav-link" href="player/history">Mon Historique
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="leaderboard">
-                <span class="bi bi-trophy" aria-hidden="true"></span> 🏆 Classements
+            <NavLink class="nav-link" href="leaderboard">Classements
             </NavLink>
         </div>
 
@@ -44,52 +39,45 @@
         @if (isAdmin)
         {
             <div class="nav-item px-3 mt-3">
-                <div class="nav-section-title">⚙️ Administration</div>
+                <div class="nav-section-title">Administration</div>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/dashboard">
-                    <span class="bi bi-gear" aria-hidden="true"></span> 🔧 Admin Dashboard
+                <NavLink class="nav-link" href="admin/dashboard">Admin Dashboard
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/players">
-                    <span class="bi bi-people" aria-hidden="true"></span> 👥 Gestion Joueurs
+                <NavLink class="nav-link" href="admin/players">Gestion Joueurs
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/games">
-                    <span class="bi bi-controller" aria-hidden="true"></span> 🎮 Gestion Parties
+                <NavLink class="nav-link" href="admin/games">Gestion Parties
                 </NavLink>
             </div>
         }
 
         @* Menu Authentification *@
         <div class="nav-item px-3 mt-3">
-            <div class="nav-section-title">🔐 Compte</div>
+            <div class="nav-section-title">Compte</div>
         </div>
         @if (!isAuthenticated)
         {
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/login">
-                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> 🚪 Connexion
+                <NavLink class="nav-link" href="auth/login">Connexion
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/register">
-                    <span class="bi bi-person-plus" aria-hidden="true"></span> 📝 Inscription
+                <NavLink class="nav-link" href="auth/register">Inscription
                 </NavLink>
             </div>
         }
         else
         {
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/profile">
-                    <span class="bi bi-person-circle" aria-hidden="true"></span> 👤 Mon Profil
+                <NavLink class="nav-link" href="auth/profile">Mon Profil
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <button class="nav-link btn btn-link text-start" @onclick="Logout">
-                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> 🚪 Déconnexion
+                <button class="nav-link btn btn-link text-start" @onclick="Logout">Déconnexion
                 </button>
             </div>
         }
@@ -108,7 +96,7 @@
         // TODO: Vérifier l'état d'authentification
         // isAuthenticated = AuthService.IsAuthenticated();
         // isAdmin = AuthService.IsAdmin();
-        
+
         // État temporaire - à remplacer par la vraie authentification
         isAuthenticated = false; // Par défaut non connecté
         isAdmin = false;
