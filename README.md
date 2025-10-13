@@ -6,7 +6,7 @@ Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expé
 ![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## 🚀 Fonctionnalités
+## Fonctionnalités
 
 - **Interface textuelle immersive** : Narration riche avec choix multiples
 - **Design rétro** : Ambiance visuelle inspirée des jeux classiques
@@ -14,7 +14,7 @@ Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expé
 - **Responsive design** : Adapté aux mobiles et desktop
 - **Déploiement automatique** : Build et déploiement via GitHub Actions
 
-## 🛠️ Technologies
+## Technologies
 
 - **Frontend** : Blazor WebAssembly (.NET 9)
 - **Backend** : ASP.NET Core Web API
