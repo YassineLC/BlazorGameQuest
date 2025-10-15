@@ -1,4 +1,4 @@
-# BlazorGameQuest 🎮
+# BlazorGameQuest - Yassine LAHMAR CHERIF & Louisa MAIBECHE
 
 Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expérience immersive dans un univers de style Metroidvania.
 
