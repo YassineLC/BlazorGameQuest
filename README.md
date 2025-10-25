@@ -115,7 +115,64 @@ Depuis le répertoire racine du projet, on exécute :
 cd BlazorGame.Client.Tests
 dotnet test
 
+## Mise en place locale et tests de la version 2
 
+### Installation des dépendances
+
+Depuis la racine du projet :
+
+```bash
+dotnet restore
+```
+
+### Configuration de la base de données
+
+Ouvrir **pgAdmin** et créer une base nommée **gamequest**.
+Vérifier que PostgreSQL fonctionne (exemple :  port `5433`, utilisateur `postgres`, mot de passe `admin`).
+
+Dans `appsettings.json`, la chaîne de connexion doit ressembler à ceci :
+
+```json
+"ConnectionStrings": {
+  "Postgres": "Host=localhost;Port=5433;Database=gamequest;Username=postgres;Password=admin"
+}
+```
+
+### Application des migrations
+
+Créer les tables dans la base avec :
+
+```bash
+dotnet ef database update --project ApiGateway --startup-project ApiGateway
+```
+
+### Lancement de l’API
+
+```bash
+cd ApiGateway
+dotnet run
+```
+
+Ouvrir ensuite Swagger à l’adresse :
+[http://localhost:5001/swagger]
+
+### Tests des endpoints
+
+Dans Swagger :
+
+* **POST /api/dungeons** → créer un donjon
+* **POST /api/rooms** → ajouter des salles
+* **GET /api/dungeons** et **GET /api/rooms** → vérifier les données enregistrées
+
+### Vérification dans pgAdmin
+
+Dans la base **gamequest** :
+
+```sql
+SELECT * FROM "Dungeons";
+SELECT * FROM "Rooms";
+SELECT * FROM "Traps";
+```
 ## Contributeurs
 
 - Yassine LAHMAR CHERIF
