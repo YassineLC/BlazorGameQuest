@@ -1,6 +1,28 @@
 # BlazorGameQuest - Yassine LAHMAR CHERIF & Louisa MAIBECHE
 
-Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expérience immersive dans un univers de style Metroidvania.
+Un jeu d'aventure textuel développé avec Blazor WebAssembly
+
+Depuis le répertoire racine du projet, on exécute :
+
+```powershell
+cd tests/BlazorGame.Client.Tests
+dotnet test
+```
+
+## Mise en place locale et tests de la version 2
+
+### Prérequis additionnels
+
+- **PostgreSQL** (port 5433 recommandé)
+- **pgAdmin** pour la gestion de base de données
+- **Entity Framework Core Tools** : `dotnet tool install --global dotnet-ef` 
+
+### Lancement de l'API
+
+```bash
+cd src/ApiGateway
+dotnet run
+```vers de style Metroidvania.
 
 ![Build Status](https://github.com/YassineLC/BlazorGameQuest/workflows/Build/badge.svg)
 ![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
@@ -38,14 +60,18 @@ Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expé
 
 ```
 BlazorGameQuest/
-├── BlazorGame.Client/       # Interface utilisateur Blazor (http://localhost:5000)
-├── ApiGateway/              # API Gateway (http://localhost:5001)
-├── GameService/             # Service de jeu (http://localhost:5002)
-├── AuthenticationServices/  # Service d'authentification (http://localhost:5003)
-├── SharedModels/            # Modèles partagés
-├── start-services.ps1       # Script de démarrage des services (en arrière-plan)
-├── stop-services.ps1        # Script d'arrêt des services (avec confirmation)
-└── BlazorGameQuest.sln      # Solution principale
+├── src/
+│   ├── BlazorGame.Client/       # Interface utilisateur Blazor (http://localhost:5000)
+│   ├── ApiGateway/              # API Gateway (http://localhost:5001)
+│   ├── GameService/             # Service de jeu (http://localhost:5002)
+│   ├── AuthenticationServices/  # Service d'authentification (http://localhost:5003)
+│   └── SharedModels/            # Modèles partagés
+├── tests/
+│   └── BlazorGame.Client.Tests/ # Tests unitaires
+├── start-services.ps1           # Script de démarrage des services (en arrière-plan)
+├── stop-services.ps1            # Script d'arrêt des services (avec confirmation)
+└── BlazorGameQuest.sln          # Solution principale
+```
 
 ## Démarrage Rapide
 
@@ -53,6 +79,17 @@ BlazorGameQuest/
 
 - .NET 9.0 SDK
 - PowerShell (pour les scripts de démarrage)
+
+### Configuration
+
+Avant de lancer l'application, créez un fichier `.env` à la racine du projet en vous basant sur le fichier `.env.example` fourni :
+
+```powershell
+# Copiez le fichier exemple
+copy .env.example .env
+```
+
+Le fichier `.env` contient les variables d'environnement nécessaires, notamment les credentials de la base de données PostgreSQL. Un exemple de configuration est disponible dans `.env.example`.
 
 ### Lancement de l'Application
 
@@ -65,19 +102,19 @@ BlazorGameQuest/
 2. **Méthode Manuelle**
    ```powershell
    # Terminal 1 - AuthenticationServices
-   cd AuthenticationServices
+   cd src/AuthenticationServices
    dotnet run
    
    # Terminal 2 - GameService
-   cd GameService
+   cd src/GameService
    dotnet run
    
    # Terminal 3 - ApiGateway
-   cd ApiGateway
+   cd src/ApiGateway
    dotnet run
    
    # Terminal 4 - Client Blazor
-   cd BlazorGame.Client
+   cd src/BlazorGame.Client
    dotnet run
    ```
 
@@ -140,11 +177,21 @@ Dans `appsettings.json`, la chaîne de connexion doit ressembler à ceci :
 
 ### Application des migrations
 
+⚠️ **Important** : Exécutez cette commande depuis le répertoire racine du projet.
+
+Installer l'outil Entity Framework Core si ce n'est pas déjà fait :
+
+```bash
+dotnet tool install --global dotnet-ef
+```
+
 Créer les tables dans la base avec :
 
 ```bash
-dotnet ef database update --project ApiGateway --startup-project ApiGateway
+dotnet ef database update --project src/ApiGateway --startup-project src/ApiGateway
 ```
+
+**Note** : Si vous obtenez une erreur "Le fichier projet n'existe pas", vérifiez que vous êtes bien dans le répertoire racine du projet (où se trouve le fichier `BlazorGameQuest.sln`).
 
 ### Lancement de l’API
 

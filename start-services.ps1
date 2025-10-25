@@ -10,6 +10,22 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
+# Charger les variables d'environnement depuis le fichier .env
+$envFile = Join-Path $PSScriptRoot ".env"
+if (Test-Path $envFile) {
+    Write-Host "Chargement des variables d'environnement depuis .env..." -ForegroundColor Cyan
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^([^#][^=]+)=(.*)$') {
+            $key = $matches[1].Trim()
+            $value = $matches[2].Trim()
+            [Environment]::SetEnvironmentVariable($key, $value, "Process")
+            Write-Host "  $key = $value" -ForegroundColor Gray
+        }
+    }
+} else {
+    Write-Host "ATTENTION: Fichier .env non trouvé. Copiez .env.example vers .env et configurez-le." -ForegroundColor Yellow
+}
+
 # Arrêter tous les processus dotnet existants
 Write-Host "Arrêt des processus dotnet existants..." -ForegroundColor Yellow
 Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
