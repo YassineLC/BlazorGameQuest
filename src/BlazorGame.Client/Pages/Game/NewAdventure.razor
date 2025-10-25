@@ -1,69 +1,159 @@
 @page "/game/new-adventure"
 
+<PageTitle>Nouvelle Aventure - BlazorGameQuest</PageTitle>
+
 <div class="adventure-container">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="adventure-card">
-                    <div class="text-center mb-4">
-                        <h1>⚔️ Nouvelle Aventure</h1>
-                        <p class="lead">Préparez-vous à explorer un donjon mystérieux...</p>
-                    </div>
-
-                    <div class="adventure-intro">
-                        <div class="row justify-content-center">
-                            <div class="col-md-8">
-                                <div class="preview-card">
-                                    <h3> Configuration du Donjon</h3>
-                                    <p><strong>Nombre de salles :</strong> @dungeonRooms salles</p>
-                                    <p><strong>Difficulté :</strong> @dungeonDifficulty</p>
-                                    <p><strong>Système de récompenses :</strong> <em>À venir</em></p>
-                                    <p><strong>Mécaniques de jeu :</strong> <em>À venir</em></p>
-                                    <p><strong>Types d'ennemis :</strong> <em>À venir</em></p>
-                                    <p><strong>Objets et équipements :</strong> <em>À venir</em></p>
-                                    
-                                    <div class="alert alert-info mt-3">
-                                        <i class="bi bi-info-circle"></i>
-                                        <strong>Note :</strong> La logique de jeu complète sera implémentée dans une version ultérieure.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="text-center mt-4">
-                            <a href="/game/room/1" class="btn btn-success btn-lg me-3">
-                                🚪 Entrer dans le Donjon
-                            </a>
-                            <a href="/player/dashboard" class="btn btn-outline-secondary">
-                                ← Retour au Tableau de Bord
+        @if (!showConfiguration)
+        {
+            <!-- Écran initial avec juste le bouton -->
+            <div class="row justify-content-center" style="min-height: 60vh;">
+                <div class="col-lg-6 d-flex align-items-center">
+                    <div class="card-medieval text-center w-100">
+                        <h1 class="mb-4">Nouvelle Aventure</h1>
+                        <p class="lead mb-4">Prêt à explorer les mystères des donjons ?</p>
+                        
+                        <button class="btn btn-primary btn-lg" @onclick="ShowConfiguration">
+                            Commencer une Aventure
+                        </button>
+                        
+                        <div class="mt-4">
+                            <a href="/player/dashboard" class="btn btn-secondary">
+                                Retour au Tableau de Bord
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <!-- Configuration du donjon -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8">
+                    <div class="adventure-header">
+                        <h1 class="text-center mb-3">Configuration du Donjon</h1>
+                        <p class="text-center lead">Choisissez les paramètres de votre aventure</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card-medieval">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="config-form">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Nombre de salles</label>
+                                        <select class="form-control" @bind="selectedRoomCount" @bind:after="UpdateEstimatedRewards">
+                                            <option value="3">3 salles (Rapide)</option>
+                                            <option value="4">4 salles (Normal)</option>
+                                            <option value="5">5 salles (Long)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Difficulté</label>
+                                        <select class="form-control" @bind="selectedDifficulty" @bind:after="UpdateEstimatedRewards">
+                                            <option value="Facile">Facile</option>
+                                            <option value="Normale">Normale</option>
+                                            <option value="Difficile">Difficile</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="dungeon-preview">
+                                    <h4>Aperçu</h4>
+                                    <div class="preview-stats">
+                                        <div class="stat-preview">
+                                            <span class="stat-label">Salles :</span>
+                                            <span class="stat-value">@selectedRoomCount</span>
+                                        </div>
+                                        <div class="stat-preview">
+                                            <span class="stat-label">Difficulté :</span>
+                                            <span class="stat-value difficulty-@selectedDifficulty.ToLower()">@selectedDifficulty</span>
+                                        </div>
+                                        <div class="stat-preview">
+                                            <span class="stat-label">Récompenses estimées :</span>
+                                            <span class="stat-value">@estimatedRewards pts</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="dungeon-map">
+                                        @for (int i = 1; i <= selectedRoomCount; i++)
+                                        {
+                                            <div class="room-preview room-@i">
+                                                <span>@i</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button class="btn btn-success btn-lg me-3" @onclick="StartAdventure">
+                                    Lancer l'Aventure
+                                </button>
+                                <button class="btn btn-secondary" @onclick="GoBack">
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
 @code {
-    private int dungeonRooms;
-    private string dungeonDifficulty = string.Empty;
+    private bool showConfiguration = false;
+    private int selectedRoomCount = 4;
+    private string selectedDifficulty = "Normale";
+    private int estimatedRewards = 200;
 
     protected override void OnInitialized()
     {
-        GenerateDungeonPreview();
+        UpdateEstimatedRewards();
     }
 
-    private void GenerateDungeonPreview()
+    private void ShowConfiguration()
     {
-        // TODO: Appel API pour obtenir les paramètres de donjon
-        // var dungeonConfig = await GameService.GenerateDungeonPreviewAsync();
+        showConfiguration = true;
+    }
+
+    private void GoBack()
+    {
+        showConfiguration = false;
+    }
+
+    private void UpdateEstimatedRewards()
+    {
+        var baseReward = selectedDifficulty switch
+        {
+            "Facile" => 50,
+            "Normale" => 75,
+            "Difficile" => 100,
+            _ => 75
+        };
+        estimatedRewards = baseReward * selectedRoomCount;
+    }
+
+    private async Task StartAdventure()
+    {
+        // TODO: Créer l'aventure avec les paramètres sélectionnés
+        // await GameService.CreateAdventureAsync(selectedRoomCount, selectedDifficulty);
         
-        // Valeurs temporaires - à remplacer par l'API
-        var random = new Random();
-        dungeonRooms = random.Next(3, 6); // Entre 3 et 5 salles
+        await Task.CompletedTask; // Placeholder pour éviter le warning
         
-        var difficulties = new[] { "Facile", "Normale", "Difficile" };
-        dungeonDifficulty = difficulties[random.Next(difficulties.Length)];
+        // Redirection vers la première salle
+        NavigationManager.NavigateTo("/game/room/1");
     }
 }
+
+@inject NavigationManager NavigationManager

@@ -1,4 +1,4 @@
-# BlazorGameQuest 🎮
+# BlazorGameQuest - Yassine LAHMAR CHERIF & Louisa MAIBECHE
 
 Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expérience immersive dans un univers de style Metroidvania.
 
@@ -6,7 +6,7 @@ Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expé
 ![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## 🚀 Fonctionnalités
+## Fonctionnalités
 
 - **Interface textuelle immersive** : Narration riche avec choix multiples
 - **Design rétro** : Ambiance visuelle inspirée des jeux classiques
@@ -14,7 +14,7 @@ Un jeu d'aventure textuel développé avec Blazor WebAssembly, offrant une expé
 - **Responsive design** : Adapté aux mobiles et desktop
 - **Déploiement automatique** : Build et déploiement via GitHub Actions
 
-## 🛠️ Technologies
+## Technologies
 
 - **Frontend** : Blazor WebAssembly (.NET 9)
 - **Backend** : ASP.NET Core Web API
@@ -103,6 +103,18 @@ BlazorGameQuest/
 - **Base de données** : Entity Framework Core In-Memory (pour l'instant ?)
 - **Authentification** : Keycloak (à intégrer)
 - **Conteneurisation** : Docker (à implémenter)
+## Tests Unitaires
+
+BlazorGameQuest utilise **BUnit** et **xUnit** pour tester les composants Blazor
+
+### Lancer tous les tests
+
+Depuis le répertoire racine du projet, on exécute :
+
+```powershell
+cd BlazorGame.Client.Tests
+dotnet test
+
 
 ## Contributeurs
 

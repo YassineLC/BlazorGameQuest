@@ -1,14 +1,23 @@
 .navbar-toggler {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(201, 170, 113, 0.2);
+    border: 2px solid #c9aa71;
+    border-radius: 0;
 }
 
 .top-row {
     min-height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    background-color: #1a1a1a;
+    border-bottom: 3px solid #c9aa71;
 }
 
 .navbar-brand {
-    font-size: 1.1rem;
+    font-family: 'Silkscreen', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #c9aa71 !important;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0px #1a1a1a;
+    letter-spacing: 1px;
 }
 
 .bi {
@@ -34,8 +43,10 @@
 }
 
 .nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
 }
 
     .nav-item:first-of-type {
@@ -47,22 +58,49 @@
     }
 
     .nav-item ::deep a {
-        color: #d7d7d7;
-        border-radius: 4px;
+        color: #d0d0d0;
+        border-radius: 0;
         height: 3rem;
         display: flex;
         align-items: center;
         line-height: 3rem;
+        text-transform: uppercase;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        padding-left: 16px;
+        font-size: 13px;
+    }
+
+    .nav-item ::deep button {
+        color: #d0d0d0;
+        border-radius: 0;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+        text-transform: uppercase;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        padding-left: 16px;
+        font-size: 13px;
+        background: none;
+        width: 100%;
+        text-align: left;
     }
 
 .nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
+    background: linear-gradient(90deg, #c9aa71, #8b7355);
+    color: #1a1a1a;
+    border-color: #c9aa71;
+    box-shadow: 2px 2px 0px #5a4a3a;
+    font-weight: bold;
 }
 
-.nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
+.nav-item ::deep a:hover, .nav-item ::deep button:hover {
+    background: linear-gradient(90deg, rgba(201, 170, 113, 0.3), rgba(139, 115, 85, 0.3));
+    color: #c9aa71;
+    border-color: #c9aa71;
+    transform: translateX(4px);
 }
 
 @media (min-width: 641px) {

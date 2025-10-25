@@ -1,74 +1,119 @@
 @page "/game/room/{RoomId:int}"
 
-<div class="text-game-container">
-    <!-- Ambiance de fond -->
-    <div class="background-atmosphere">
-        <div class="fog-layer"></div>
-        <div class="particle-effects"></div>
-    </div>
+<PageTitle>Salle @RoomId - BlazorGameQuest</PageTitle>
 
-    <!-- Zone de texte principale -->
-    <div class="story-section">
-        <div class="story-text">
-            <h2 class="chapter-title"> Salle @RoomId - Crypte Mystérieuse</h2>
-            <div class="narrative-text">
-                Vous pénétrez dans une salle sombre et humide. Des torches vacillantes projettent des ombres 
-                dansantes sur les murs de pierre ancienne. Au centre de la pièce, un coffre mystérieux attire 
-                votre attention, mais vous entendez des grognements inquiétants dans l'obscurité...
-                <br><br>
-                L'air est lourd et chargé de magie. Trois chemins s'offrent à vous. Que décidez-vous de faire ?
-            </div>
-        </div>
-    </div>
-
-    <!-- Zone de choix -->
-    <div class="choices-section">
-        <div class="choice-bubble choice-1">
-            <div class="choice-icon">⚔️</div>
-            <div class="choice-text">
-                <strong>Combattre</strong>
-                <p>Dégainer votre épée et affronter les créatures dans l'ombre</p>
+<div class="game-room-fullscreen">
+    <div class="container-fluid h-100">
+        <!-- Header compact -->
+        <div class="row game-header-row">
+            <div class="col-12">
+                <div class="room-header-compact">
+                    <div class="header-left">
+                        <div class="room-progress">@RoomId / @totalRooms</div>
+                        <h2 class="room-title">Salle @RoomId - Crypte Mystérieuse</h2>
+                    </div>
+                    <div class="header-right">
+                        <a href="/player/dashboard" class="btn btn-secondary btn-abandon">Abandonner</a>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="choice-bubble choice-2">
-            <div class="choice-icon">🔍</div>
-            <div class="choice-text">
-                <strong>Explorer</strong>
-                <p>Examiner prudemment le coffre et fouiller la salle</p>
+        <!-- Zone de texte principale - LARGE -->
+        <div class="row story-row">
+            <div class="col-12">
+                <div class="story-card-large">
+                    <div class="story-content-large">
+                        <p class="room-description-large">
+                            Vous pénétrez dans une salle sombre et humide. Des torches vacillantes projettent des ombres 
+                            dansantes sur les murs de pierre ancienne. Au centre de la pièce, un coffre mystérieux attire 
+                            votre attention, mais vous entendez des grognements inquiétants dans l'obscurité...
+                        </p>
+                        <div class="situation-highlight">
+                            Que décidez-vous de faire ?
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="choice-bubble choice-3">
-            <div class="choice-icon">🏃</div>
-            <div class="choice-text">
-                <strong>Fuir</strong>
-                <p>Battre en retraite vers la sortie la plus proche</p>
+        <!-- Zone de choix - 3 boutons côte à côte -->
+        <div class="row choices-row">
+            <div class="col-4">
+                <button class="choice-btn-compact choice-combat w-100" @onclick="@(() => MakeChoice("combat"))">
+                    Combattre
+                    <small>Affronter les créatures élevé</small>
+                </button>
+            </div>
+            <div class="col-4">
+                <button class="choice-btn-compact choice-explore w-100" @onclick="@(() => MakeChoice("explore"))">
+                    Explorer
+                    <small>Fouiller la salle modéré</small>
+                </button>
+            </div>
+            <div class="col-4">
+                <button class="choice-btn-compact choice-flee w-100" @onclick="@(() => MakeChoice("flee"))">
+                     Fuir
+                    <small>Battre en retraite faible</small>
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Barre d'état en bas -->
-    <div class="status-bar">
-        <div class="stat">
-            <span class="stat-label">❤️ VIE</span>
-            <div class="stat-value">85/100</div>
-        </div>
-        <div class="stat">
-            <span class="stat-label">✨ MANA</span>
-            <div class="stat-value">60/100</div>
-        </div>
-        <div class="stat">
-            <span class="stat-label">🏆 SCORE</span>
-            <div class="stat-value">1,250</div>
-        </div>
-        <div class="stat">
-            <span class="stat-label">🗝️ CLÉS</span>
-            <div class="stat-value">2</div>
+        <!-- Barre de statut en bas - horizontale -->
+        <div class="row status-row">
+            <div class="col-12">
+                <div class="status-bar-horizontal">
+                    <div class="stat-horizontal">
+                        <span class="stat-icon">❤️</span>
+                        <span class="stat-label">VIE</span>
+                        <div class="stat-bar-inline">
+                            <div class="stat-fill life-bar" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-horizontal">
+                        <span class="stat-icon">⚡</span>
+                        <span class="stat-label">MANA</span>
+                        <div class="stat-bar-inline">
+                            <div class="stat-fill mana-bar" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-horizontal">
+                        <span class="stat-icon">🏆</span>
+                        <span class="stat-label">SCORE</span>
+                        <span class="stat-value">1,250</span>
+                    </div>
+                    <div class="stat-horizontal">
+                        <span class="stat-icon">🗝️</span>
+                        <span class="stat-label">CLÉS</span>
+                        <span class="stat-value">2</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @code {
     [Parameter] public int RoomId { get; set; }
+    private int totalRooms = 5;
+
+    private async Task MakeChoice(string choice)
+    {
+        // TODO: Implémenter la logique de choix
+        // await GameService.ProcessChoiceAsync(RoomId, choice);
+        
+        await Task.CompletedTask; // Placeholder pour éviter le warning
+        
+        // Pour l'instant, navigation vers la salle suivante ou fin de partie
+        if (RoomId < totalRooms)
+        {
+            NavigationManager.NavigateTo($"/game/room/{RoomId + 1}");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/game/victory");
+        }
+    }
 }
+
+@inject NavigationManager NavigationManager
