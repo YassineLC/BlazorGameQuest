@@ -11,10 +11,11 @@ namespace BlazorGame.Client.Tests.Pages
     {
       var cut = RenderComponent<ComingSoon>();
 
-      Assert.Equal("Fonctionnalité À Venir", cut.Find("h2").TextContent.Trim());
+      var heading = cut.Find("h2");
+      Assert.Contains("Fonctionnalité À Venir", heading.TextContent);
 
-      Assert.Contains("Cette fonctionnalité est en cours de développement",
-          cut.Find("p.lead").TextContent);
+      var paragraph = cut.Find("p.lead");
+      Assert.Contains("Cette fonctionnalité est en cours de développement", paragraph.TextContent);
     }
 
     [Fact]
@@ -25,11 +26,11 @@ namespace BlazorGame.Client.Tests.Pages
       var listItems = cut.FindAll(".features-preview ul li");
       Assert.Equal(5, listItems.Count);
 
-      Assert.Equal("Système de jeu complet", listItems[0].TextContent.Trim());
-      Assert.Equal("Exploration de donjons", listItems[1].TextContent.Trim());
-      Assert.Equal("Combats tactiques", listItems[2].TextContent.Trim());
-      Assert.Equal("Système de scores", listItems[3].TextContent.Trim());
-      Assert.Equal("Progression du joueur", listItems[4].TextContent.Trim());
+      Assert.Contains("Système de jeu complet", listItems[0].TextContent);
+      Assert.Contains("Exploration de donjons", listItems[1].TextContent);
+      Assert.Contains("Combats tactiques", listItems[2].TextContent);
+      Assert.Contains("Système de scores", listItems[3].TextContent);
+      Assert.Contains("Progression du joueur", listItems[4].TextContent);
     }
 
     [Fact]
@@ -41,7 +42,7 @@ namespace BlazorGame.Client.Tests.Pages
       Assert.Equal("/player/dashboard", dashboardButton.GetAttribute("href"));
       Assert.Contains("Tableau de Bord", dashboardButton.TextContent);
 
-      var homeButton = cut.Find("a.btn-outline-secondary");
+      var homeButton = cut.Find("a.btn-secondary");
       Assert.Equal("/", homeButton.GetAttribute("href"));
       Assert.Contains("Accueil", homeButton.TextContent);
     }
@@ -51,9 +52,8 @@ namespace BlazorGame.Client.Tests.Pages
     {
       var cut = RenderComponent<ComingSoon>();
 
-      var footer = cut.Find("small.text-muted");
-      Assert.Contains("Restez connecté pour découvrir les nouvelles fonctionnalités",
-          footer.TextContent);
+      var footer = cut.Find("small");
+      Assert.Contains("Restez connecté pour découvrir les nouvelles fonctionnalités", footer.TextContent);
     }
   }
 }

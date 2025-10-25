@@ -8,7 +8,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="welcome-card">
-                    <h1>🛡️ Bienvenue, @playerName ! ⚔️</h1>
+                    <h1>Bienvenue, @playerName !</h1>
                     <p class="lead">Prêt pour une nouvelle aventure dans les donjons ?</p>
                 </div>
             </div>
@@ -19,7 +19,7 @@
             <div class="col-md-6 mb-3">
                 <div class="action-card h-100">
                     <div class="card-body text-center">
-                        <h3>🗡️ Nouvelle Aventure</h3>
+                        <h3>Nouvelle Aventure</h3>
                         <p>Explorez un nouveau donjon et testez votre courage !</p>
                         <a href="/game/new-adventure" class="btn btn-primary btn-lg">
                             Commencer l'Aventure
@@ -30,16 +30,16 @@
             <div class="col-md-6 mb-3">
                 <div class="action-card h-100">
                     <div class="card-body text-center">
-                        <h3>📊 Mes Statistiques</h3>
-                        <p>💰 Score total : <strong>@totalScore pts</strong></p>
-                        <p>🎮 Parties jouées : <strong>@gamesPlayed</strong></p>
+                        <h3>Mes Statistiques</h3>
+                        <p>Score total : <strong>@totalScore pts</strong></p>
+                        <p>Parties jouées : <strong>@gamesPlayed</strong></p>
                         @if (playerRank > 0)
                         {
-                            <p>🏆 Rang : <strong>#@playerRank</strong></p>
+                            <p>Rang : <strong>#@playerRank</strong></p>
                         }
                         else
                         {
-                            <p>🏆 Rang : <em>À venir</em></p>
+                            <p>Rang : <em>À venir</em></p>
                         }
                     </div>
                 </div>
@@ -50,7 +50,7 @@
         <div class="row mb-4">
             <div class="col-lg-8">
                 <div class="stats-card">
-                    <h3>📜 Historique des Parties</h3>
+                    <h3>Historique des Parties</h3>
                     @if (recentGames.Any())
                     {
                         <div class="table-responsive">
@@ -72,7 +72,7 @@
                                             <td>@game.Score pts</td>
                                             <td>
                                                 <span class="badge @(game.IsCompleted ? "bg-success" : "bg-warning")">
-                                                    @(game.IsCompleted ? "✅ Terminé" : "💀 Mort")
+                                                    @(game.IsCompleted ? "Terminé" : "Mort")
                                                 </span>
                                             </td>
                                         </tr>
@@ -89,7 +89,7 @@
                     else
                     {
                         <div class="text-center py-4">
-                            <p class="text-muted">Aucune partie jouée pour le moment.</p>
+                            <p>Aucune partie jouée pour le moment.</p>
                             <a href="/game/new-adventure" class="btn btn-primary">
                                 Jouer Votre Première Partie
                             </a>
@@ -100,7 +100,7 @@
             
             <div class="col-lg-4">
                 <div class="leaderboard-card">
-                    <h3>🏆 Top Joueurs</h3>
+                    <h3>Top Joueurs</h3>
                     @if (topPlayers.Any())
                     {
                         <div class="list-group list-group-flush">
@@ -126,7 +126,7 @@
                     }
                     else
                     {
-                        <p class="text-muted text-center">Classement à venir...</p>
+                        <p class="text-center">Classement à venir...</p>
                     }
                 </div>
             </div>
