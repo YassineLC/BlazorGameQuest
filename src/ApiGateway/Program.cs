@@ -1,12 +1,21 @@
+using System.Text.Json.Serialization;
 using ApiGateway.Data;
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
+
+// Charger le fichier .env depuis la racine du projet
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Choix provider: InMemory pour tests, sinon Postgres
-var useInMemory = builder.Configuration.GetValue<bool>("UseInMemory");
+var useInMemory = Environment.GetEnvironmentVariable("USE_IN_MEMORY")?.ToLower() == "true"
+                 || builder.Configuration.GetValue<bool>("UseInMemory");
 
 if (useInMemory)
 {
@@ -20,9 +29,32 @@ else
 {
     /// <summary>
     /// Provider PostgreSQL: base réelle pour persistance
+    /// Utilise les variables d'environnement si disponibles, sinon les appsettings
     /// </summary>
+    var connectionString = BuildConnectionString() ??
+                          builder.Configuration.GetConnectionString("Postgres");
+
     builder.Services.AddDbContext<AppDbContext>(opt =>
-        opt.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+        opt.UseNpgsql(connectionString));
+}
+
+// Fonction pour construire la chaîne de connexion à partir des variables d'environnement
+string? BuildConnectionString()
+{
+    var host = Environment.GetEnvironmentVariable("DB_HOST");
+    var port = Environment.GetEnvironmentVariable("DB_PORT");
+    var database = Environment.GetEnvironmentVariable("DB_DATABASE");
+    var username = Environment.GetEnvironmentVariable("DB_USERNAME");
+    var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+    if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port) ||
+        string.IsNullOrEmpty(database) || string.IsNullOrEmpty(username) ||
+        string.IsNullOrEmpty(password))
+    {
+        return null;
+    }
+
+    return $"Host={host};Port={port};Database={database};Username={username};Password={password}";
 }
 
 builder.Services.AddControllers()
