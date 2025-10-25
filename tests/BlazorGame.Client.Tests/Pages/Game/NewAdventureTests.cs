@@ -1,4 +1,3 @@
-using System;
 using Bunit;
 using Xunit;
 using BlazorGame.Client.Pages.Game;
@@ -16,7 +15,23 @@ namespace BlazorGame.Client.Tests.Pages.Game
       Assert.Contains("Nouvelle Aventure", h1.TextContent);
 
       var lead = cut.Find("p.lead");
-      Assert.Contains("Préparez-vous à explorer un donjon mystérieux", lead.TextContent);
+      Assert.Contains("Prêt à explorer les mystères des donjons", lead.TextContent);
+    }
+
+    [Fact]
+    public void NewAdventure_ShowsConfigurationScreen_AfterClick()
+    {
+      var cut = RenderComponent<NewAdventure>();
+
+      var startButton = cut.Find("button.btn-primary");
+      startButton.Click();
+
+      var configHeader = cut.Find("h1.text-center");
+      Assert.Contains("Configuration du Donjon", configHeader.TextContent);
+
+      var formLabels = cut.FindAll(".form-label");
+      Assert.Contains(formLabels, l => l.TextContent.Contains("Nombre de salles"));
+      Assert.Contains(formLabels, l => l.TextContent.Contains("Difficulté"));
     }
 
     [Fact]
@@ -24,18 +39,18 @@ namespace BlazorGame.Client.Tests.Pages.Game
     {
       var cut = RenderComponent<NewAdventure>();
 
-      var previewCard = cut.Find("div.preview-card");
-      Assert.NotNull(previewCard);
+      cut.Find("button.btn-primary").Click();
 
-      Assert.Contains("Nombre de salles :", previewCard.TextContent);
-      Assert.Contains("Difficulté :", previewCard.TextContent);
-      Assert.Contains("Système de récompenses :", previewCard.TextContent);
-      Assert.Contains("Mécaniques de jeu :", previewCard.TextContent);
-      Assert.Contains("Types d'ennemis :", previewCard.TextContent);
-      Assert.Contains("Objets et équipements :", previewCard.TextContent);
+      var preview = cut.Find("div.dungeon-preview");
+      Assert.NotNull(preview);
 
-      var alert = cut.Find("div.alert-info");
-      Assert.Contains("La logique de jeu complète sera implémentée", alert.TextContent);
+      Assert.Contains("Aperçu", preview.TextContent);
+      Assert.Contains("Salles", preview.TextContent);
+      Assert.Contains("Difficulté", preview.TextContent);
+      Assert.Contains("Récompenses estimées", preview.TextContent);
+
+      var rooms = cut.FindAll(".room-preview");
+      Assert.True(rooms.Count >= 3);
     }
 
     [Fact]
@@ -43,13 +58,17 @@ namespace BlazorGame.Client.Tests.Pages.Game
     {
       var cut = RenderComponent<NewAdventure>();
 
-      var enterButton = cut.Find("a[href='/game/room/1']");
-      Assert.NotNull(enterButton);
-      Assert.Contains("Entrer dans le Donjon", enterButton.TextContent);
-
-      var dashboardButton = cut.Find("a[href='/player/dashboard']");
-      Assert.NotNull(dashboardButton);
+      var dashboardButton = cut.Find("a.btn.btn-secondary");
+      Assert.Equal("/player/dashboard", dashboardButton.GetAttribute("href"));
       Assert.Contains("Retour au Tableau de Bord", dashboardButton.TextContent);
+
+      cut.Find("button.btn-primary").Click();
+
+      var launchButton = cut.Find("button.btn-success");
+      Assert.Contains("Lancer l'Aventure", launchButton.TextContent);
+
+      var backButton = cut.Find("button.btn.btn-secondary");
+      Assert.Contains("Retour", backButton.TextContent);
     }
   }
 }

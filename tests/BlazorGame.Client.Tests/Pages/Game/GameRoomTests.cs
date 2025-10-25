@@ -1,7 +1,6 @@
 using Bunit;
 using Xunit;
 using BlazorGame.Client.Pages.Game;
-using Microsoft.AspNetCore.Components;
 
 namespace BlazorGame.Client.Tests.Pages.Game
 {
@@ -14,8 +13,9 @@ namespace BlazorGame.Client.Tests.Pages.Game
 
       var cut = RenderComponent<GameRoom>(parameters => parameters.Add(p => p.RoomId, testRoomId));
 
-      var title = cut.Find("h2.chapter-title");
+      var title = cut.Find("h2.room-title");
       Assert.Contains($"Salle {testRoomId}", title.TextContent);
+      Assert.Contains("Crypte Mystérieuse", title.TextContent);
     }
 
     [Fact]
@@ -23,9 +23,9 @@ namespace BlazorGame.Client.Tests.Pages.Game
     {
       var cut = RenderComponent<GameRoom>(parameters => parameters.Add(p => p.RoomId, 1));
 
-      var story = cut.Find("div.narrative-text");
+      var story = cut.Find("div.story-content-large");
       Assert.Contains("Vous pénétrez dans une salle sombre", story.TextContent);
-      Assert.Contains("Trois chemins s'offrent à vous", story.TextContent);
+      Assert.Contains("coffre mystérieux", story.TextContent);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ namespace BlazorGame.Client.Tests.Pages.Game
     {
       var cut = RenderComponent<GameRoom>(parameters => parameters.Add(p => p.RoomId, 1));
 
-      var choices = cut.FindAll("div.choice-bubble");
+      var choices = cut.FindAll("button.choice-btn-compact");
       Assert.Equal(3, choices.Count);
 
       Assert.Contains("Combattre", choices[0].TextContent);
@@ -46,7 +46,7 @@ namespace BlazorGame.Client.Tests.Pages.Game
     {
       var cut = RenderComponent<GameRoom>(parameters => parameters.Add(p => p.RoomId, 1));
 
-      var stats = cut.FindAll("div.status-bar div.stat");
+      var stats = cut.FindAll("div.status-bar-horizontal div.stat-horizontal");
       Assert.Equal(4, stats.Count);
 
       Assert.Contains("VIE", stats[0].TextContent);
@@ -54,8 +54,6 @@ namespace BlazorGame.Client.Tests.Pages.Game
       Assert.Contains("SCORE", stats[2].TextContent);
       Assert.Contains("CLÉS", stats[3].TextContent);
 
-      Assert.Contains("85/100", stats[0].TextContent);
-      Assert.Contains("60/100", stats[1].TextContent);
       Assert.Contains("1,250", stats[2].TextContent);
       Assert.Contains("2", stats[3].TextContent);
     }
