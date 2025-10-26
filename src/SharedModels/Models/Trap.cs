@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SharedModels.Models
 {
@@ -19,6 +20,7 @@ namespace SharedModels.Models
     public TrapType Type { get; set; }
 
     /// <summary>Probabilité que le piège se déclenche (en %)</summary>
+    [Range(0, 100, ErrorMessage = "La probabilité doit être entre 0 et 100.")]
     public int ChanceToTriggerPercent { get; set; } = 50;
 
     /// <summary>Dégâts infligés si le piège est déclenché</summary>
