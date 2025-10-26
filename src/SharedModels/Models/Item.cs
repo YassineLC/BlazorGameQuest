@@ -9,6 +9,8 @@ namespace SharedModels.Models
     [Key] public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+
+    [Range(0, int.MaxValue, ErrorMessage = "La valeur d’un objet doit être positive")]
     public int Value { get; set; }
 
     /// <summary>clé étrangère vers la salle propriétaire</summary>
