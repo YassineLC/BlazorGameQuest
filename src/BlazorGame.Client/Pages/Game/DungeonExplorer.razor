@@ -3,7 +3,7 @@
 <PageTitle>Exploration - BlazorGameQuest</PageTitle>
 
 <div class="dungeon-explorer">
-    <div class="container-fluid">
+    <div class="container-fluid px-4 py-3">
         @if (dungeon == null)
         {
             <div class="text-center mt-5">
@@ -15,7 +15,7 @@
         }
         else if (currentRoom == null)
         {
-            <div class="alert alert-warning text-center mt-5">
+            <div class="alert alert-warning text-center mt-5 card-medieval">
                 <h4>Aucune salle active</h4>
                 <a href="/game/new-adventure" class="btn btn-primary mt-3">Créer une nouvelle aventure</a>
             </div>
@@ -23,19 +23,17 @@
         else
         {
             <!-- En-tête avec infos donjon -->
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-12">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-6">
-                                    <h4 class="mb-0">@dungeon.Name</h4>
-                                    <small class="text-muted">Profondeur @currentRoom.Depth / @dungeon.MaxDepth</small>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <span class="badge bg-info me-2">Profondeur max: @dungeon.MaxDepth</span>
-                                    <span class="badge bg-warning">Points: @totalPoints</span>
-                                </div>
+                    <div class="dungeon-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="mb-0 text-uppercase">@dungeon.Name</h2>
+                                <small class="text-muted">Profondeur @currentRoom.Depth / @dungeon.MaxDepth</small>
+                            </div>
+                            <div>
+                                <span class="badge badge-primary me-2">Profondeur max: @dungeon.MaxDepth</span>
+                                <span class="badge badge-success">Points: @totalPoints</span>
                             </div>
                         </div>
                     </div>
@@ -43,106 +41,94 @@
             </div>
 
             <!-- Salle actuelle -->
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card room-card mb-4">
-                        <div class="card-header bg-@GetRoomTypeColor(currentRoom.Type)">
-                            <div class="d-flex justify-content-between align-items-center">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="current-room-card room-type-@((int)currentRoom.Type)">
+                        <div class="room-header">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <div>
-                                    <h3 class="mb-0">@currentRoom.Name</h3>
-                                    <small>@GetRoomTypeLabel(currentRoom.Type)</small>
+                                    <h3 class="mb-1 text-uppercase">@currentRoom.Name</h3>
+                                    <span class="room-type-label">@GetRoomTypeLabel(currentRoom.Type)</span>
                                 </div>
-                                <div>
-                                    <span class="badge bg-light text-dark">Profondeur @currentRoom.Depth</span>
-                                    <span class="badge bg-success ms-2">+@currentRoom.PointsReward pts</span>
+                                <div class="room-badges">
+                                    <span class="badge badge-secondary">Profondeur @currentRoom.Depth</span>
+                                    <span class="badge badge-success ms-2">+@currentRoom.PointsReward pts</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <p class="lead">@currentRoom.Description</p>
+                        <div class="room-body">
+                            <p class="room-description">@currentRoom.Description</p>
                             
                             @if (currentRoom.Type == RoomType.Boss)
                             {
-                                <div class="alert alert-danger">
+                                <div class="room-alert alert-danger">
                                     <strong>⚔️ BOSS!</strong> Préparez-vous à un combat épique!
                                 </div>
                             }
                             else if (currentRoom.Type == RoomType.Treasure)
                             {
-                                <div class="alert alert-success">
+                                <div class="room-alert alert-treasure">
                                     <strong>💎 Trésor!</strong> Vous avez trouvé des richesses!
                                 </div>
                             }
                             else if (currentRoom.Type == RoomType.Rest)
                             {
-                                <div class="alert alert-info">
+                                <div class="room-alert alert-rest">
                                     <strong>🛡️ Repos</strong> Vous pouvez récupérer ici.
                                 </div>
                             }
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Actions / Salles suivantes -->
-                    @if (nextRooms.Count > 0)
-                    {
-                        <div class="card">
-                            <div class="card-header bg-secondary text-white">
-                                <h5 class="mb-0">Choisissez votre chemin</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @foreach (var room in nextRooms)
-                                    {
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card h-100 room-choice" @onclick="() => NavigateToRoom(room.Id)">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">
-                                                        <span class="badge bg-@GetRoomTypeColor(room.Type) me-2">
-                                                            @GetRoomTypeLabel(room.Type)
-                                                        </span>
-                                                        @room.Name
-                                                    </h5>
-                                                    <p class="card-text small">@room.Description.Substring(0, Math.Min(100, room.Description.Length))...</p>
-                                                    <div class="mt-2">
-                                                        <span class="badge bg-secondary">Profondeur @room.Depth</span>
-                                                        <span class="badge bg-success">+@room.PointsReward pts</span>
-                                                    </div>
-                                                </div>
+            <!-- Actions / Salles suivantes -->
+            @if (nextRooms.Count > 0)
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="choices-container">
+                            <h4 class="choices-title text-uppercase text-center mb-3">Choisissez votre chemin</h4>
+                            <div class="room-choices-grid">
+                                @foreach (var room in nextRooms)
+                                {
+                                    <div class="room-choice room-choice-type-@((int)room.Type)" @onclick="() => NavigateToRoom(room.Id)">
+                                        <div class="room-choice-header">
+                                            <span class="room-choice-type">@GetRoomTypeLabel(room.Type)</span>
+                                        </div>
+                                        <div class="room-choice-body">
+                                            <h5 class="room-choice-name">@room.Name</h5>
+                                            <p class="room-choice-desc">@GetShortDescription(room.Description)</p>
+                                            <div class="room-choice-footer">
+                                                <span class="badge badge-secondary">Prof. @room.Depth</span>
+                                                <span class="badge badge-success">+@room.PointsReward pts</span>
                                             </div>
                                         </div>
-                                    }
-                                </div>
+                                    </div>
+                                }
                             </div>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4>🎉 Donjon Terminé!</h4>
-                                <p>Vous avez complété le donjon avec <strong>@totalPoints points</strong>!</p>
-                                <a href="/game/new-adventure" class="btn btn-primary">Nouvelle Aventure</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="dungeon-complete">
+                            <h4 class="text-center mb-3">🎉 Donjon Terminé!</h4>
+                            <p class="text-center">Vous avez complété le donjon avec <strong>@totalPoints points</strong>!</p>
+                            <div class="text-center">
+                                <a href="/game/new-adventure" class="btn btn-primary me-2">Nouvelle Aventure</a>
                                 <a href="/player/dashboard" class="btn btn-secondary">Tableau de Bord</a>
                             </div>
                         </div>
-                    }
+                    </div>
                 </div>
-            </div>
+            }
         }
     </div>
 </div>
-
-<style>
-    .room-choice {
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .room-choice:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-</style>
 
 @code {
     private Dungeon? dungeon;
@@ -184,18 +170,6 @@
         StateHasChanged();
     }
 
-    private string GetRoomTypeColor(RoomType type) => type switch
-    {
-        RoomType.Start => "primary",
-        RoomType.Combat => "danger",
-        RoomType.Treasure => "warning",
-        RoomType.Event => "info",
-        RoomType.Shop => "success",
-        RoomType.Rest => "secondary",
-        RoomType.Boss => "dark",
-        _ => "light"
-    };
-
     private string GetRoomTypeLabel(RoomType type) => type switch
     {
         RoomType.Start => "Départ",
@@ -207,7 +181,14 @@
         RoomType.Boss => "Boss",
         _ => "Inconnu"
     };
+
+    private string GetShortDescription(string description)
+    {
+        if (description.Length <= 80) return description;
+        return description.Substring(0, 77) + "...";
+    }
 }
 
 @inject DungeonService DungeonService
 @inject NavigationManager NavigationManager
+
