@@ -57,6 +57,11 @@ string? BuildConnectionString()
     return $"Host={host};Port={port};Database={database};Username={username};Password={password}";
 }
 
+builder.Services.AddHttpClient("GameService", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:GameService"] ?? "https://localhost:7002");
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
