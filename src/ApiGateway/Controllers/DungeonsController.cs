@@ -66,6 +66,14 @@ namespace ApiGateway.Controllers
       {
         room.DungeonId = dungeon.Id;
         room.Order = order++;
+
+        // IMPORTANT: Forcer la sérialisation de NextRoomIds vers NextRoomIdsJson
+        // car c'est une propriété calculée et EF ne le fait pas automatiquement
+        if (room.NextRoomIds.Count > 0)
+        {
+          room.NextRoomIdsJson = System.Text.Json.JsonSerializer.Serialize(room.NextRoomIds);
+        }
+
         _db.Rooms.Add(room);
       }
 

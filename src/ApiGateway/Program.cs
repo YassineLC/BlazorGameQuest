@@ -62,6 +62,18 @@ builder.Services.AddHttpClient("GameService", client =>
     client.BaseAddress = new Uri(builder.Configuration["Services:GameService"] ?? "https://localhost:7002");
 });
 
+// Configuration CORS pour permettre au client Blazor d'appeler l'API
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("http://localhost:5000", "https://localhost:5000")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
@@ -92,6 +104,9 @@ builder.Services.AddSwaggerGen(options =>
 
 
 var app = builder.Build();
+
+// Activer CORS
+app.UseCors("AllowBlazorClient");
 
 if (app.Environment.IsDevelopment())
 {

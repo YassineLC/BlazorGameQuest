@@ -37,19 +37,26 @@ public class DungeonGeneratorService
             var boss = CreateRoom(RoomType.Boss, depth, GetName(RoomType.Boss),
               GenerateUniqueDescription(RoomType.Boss));
             all.Add(boss);
-            parent.NextRoomIds.Add(boss.Id);
+
+            // Utiliser une liste temporaire puis l'assigner
+            var nextIds = parent.NextRoomIds; // Récupérer la liste actuelle
+            nextIds.Add(boss.Id);
+            parent.NextRoomIds = nextIds; // Réassigner pour forcer la sérialisation
             return;
         }
 
         // Variabilité dans le nombre de branches (plus aléatoire)
         int branches = _random.Next(100) < 70 ? _random.Next(minB, maxB + 1) : _random.Next(1, maxB + 2);
 
+        // Liste temporaire pour les enfants
+        var childIds = new List<Guid>();
+
         for (int i = 0; i < branches; i++)
         {
             var type = DetermineType(depth, maxDepth);
             var child = CreateRoom(type, depth, GetName(type), GenerateUniqueDescription(type));
             all.Add(child);
-            parent.NextRoomIds.Add(child.Id);
+            childIds.Add(child.Id);
 
             // Variation dans la profondeur : parfois sauter un niveau
             int nextDepth = _random.Next(100) < 85 ? depth + 1 : depth + 2;
@@ -61,9 +68,14 @@ public class DungeonGeneratorService
             {
                 var finalBoss = CreateRoom(RoomType.Boss, maxDepth, GetName(RoomType.Boss), GenerateUniqueDescription(RoomType.Boss));
                 all.Add(finalBoss);
-                child.NextRoomIds.Add(finalBoss.Id);
+
+                // Assigner directement
+                child.NextRoomIds = new List<Guid> { finalBoss.Id };
             }
         }
+
+        // Assigner tous les IDs des enfants au parent
+        parent.NextRoomIds = childIds;
     }
 
     private RoomType DetermineType(int depth, int maxDepth)
