@@ -1,54 +1,180 @@
 @page "/player/history"
 @inject BlazorGame.Client.Services.ScoresService ScoresService
 
-<PageTitle>Mon Historique - BlazorGameQuest</PageTitle>
+<PageTitle>Historique - BlazorGameQuest</PageTitle>
 
-<div class="container mt-4 card-medieval p-3 history-page">
-    <h2>Mon Historique</h2>
-
-    <p class="lead">Liste de vos parties et scores. Si vous n'êtes pas connecté, affiche l'historique global.</p>
-
-    <div class="mb-3">
-        <label class="form-label">Afficher</label>
-        <select class="form-select" @bind="selectedRange">
-            <option value="10">Dernières 10</option>
-            <option value="25">Dernières 25</option>
-            <option value="50">Dernières 50</option>
-        </select>
-    </div>
-
-    @if (scores == null)
-    {
-        <p>Chargement...</p>
-    }
-    else if (!scores.Any())
-    {
-        <div class="alert alert-info">Aucun score enregistré.</div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Joueur</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var s in filtered)
-                    {
-                        <tr>
-                            <td>@s.AchievedAt.ToLocalTime().ToString("g")</td>
-                            <td>@(s.Player?.Username ?? s.PlayerId.ToString())</td>
-                            <td>@s.Value</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+<div class="history-container">
+    <!-- En-tête de la page -->
+    <section class="history-header">
+        <div class="header-content">
+            <h1 class="page-title">Historique</h1>
+            <p class="page-subtitle">Vos parties précédentes</p>
         </div>
-    }
+        <div class="header-controls">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i data-feather="filter"></i>
+                    Période
+                </label>
+                <select class="filter-select" @onchange="OnFilterChanged">
+                    <option value="10">10 dernières aventures</option>
+                    <option value="25">25 dernières aventures</option>
+                    <option value="50">50 dernières aventures</option>
+                    <option value="0">Toutes les aventures</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistiques rapides -->
+    <section class="quick-stats">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-feather="zap"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@(scores?.Count ?? 0)</div>
+                    <div class="stat-label">Expéditions Totales</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-feather="star"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@(scores?.Sum(s => s.Value) ?? 0)</div>
+                    <div class="stat-label">Points Totaux</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-feather="award"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@(scores?.Any() == true ? scores.Max(s => s.Value) : 0)</div>
+                    <div class="stat-label">Meilleur Score</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-feather="calendar"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">@(scores?.Any() == true ? scores.OrderByDescending(s => s.AchievedAt).First().AchievedAt.ToString("dd MMM") : "---")</div>
+                    <div class="stat-label">Dernière Aventure</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenu principal -->
+    <section class="history-content">
+        @if (scores == null)
+        {
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <h3>Consultation des archives...</h3>
+                <p>Récupération de vos exploits légendaires</p>
+            </div>
+        }
+        else if (!scores.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i data-feather="book-open"></i>
+                </div>
+                <h3>Chroniques vides</h3>
+                <p>Vos premières aventures restent à écrire ! Partez explorer les donjons pour commencer votre légende.</p>
+                <a href="/game/new-adventure" class="btn btn-primary">
+                    <i data-feather="play"></i>
+                    Commencer votre première quête
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="history-card">
+                <div class="card-header">
+                    <h3>
+                        <i data-feather="file-text"></i>
+                        Archives des Exploits
+                    </h3>
+                    <div class="results-count">
+                        @filtered.Count sur @scores.Count aventures
+                    </div>
+                </div>
+                
+                <div class="adventures-timeline">
+                    @foreach (var adventure in filtered)
+                    {
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                <div class="marker-dot"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="adventure-card">
+                                    <div class="adventure-header">
+                                        <div class="adventure-meta">
+                                            <span class="adventure-date">
+                                                <i data-feather="calendar"></i>
+                                                @adventure.AchievedAt.ToLocalTime().ToString("dd MMM yyyy")
+                                            </span>
+                                            <span class="adventure-time">
+                                                @adventure.AchievedAt.ToLocalTime().ToString("HH:mm")
+                                            </span>
+                                        </div>
+                                        <div class="adventure-score">
+                                            <span class="score-value">@adventure.Value</span>
+                                            <span class="score-label">pts</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="adventure-body">
+                                        <div class="adventure-hero">
+                                            <i data-feather="user"></i>
+                                            <span class="hero-name">@(adventure.Player?.Username ?? $"Aventurier #{adventure.PlayerId}")</span>
+                                        </div>
+                                        
+                                        <div class="adventure-description">
+                                            Une expédition courageuse qui a rapporté <strong>@adventure.Value points d'honneur</strong> 
+                                            au royaume. L'aventurier a bravé les dangers et affronté les ténèbres.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="adventure-footer">
+                                        <div class="adventure-stats">
+                                            <span class="stat-item">
+                                                <i data-feather="shield"></i>
+                                                Exploits accomplis
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="score-badge score-badge-@GetScoreRank(adventure.Value)">
+                                            @GetScoreRankText(adventure.Value)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                @if (filtered.Count < scores.Count)
+                {
+                    <div class="card-footer">
+                        <button class="btn btn-outline" @onclick="LoadMoreAdventures">
+                            <i data-feather="more-horizontal"></i>
+                            Charger plus d'aventures (@(scores.Count - filtered.Count) restantes)
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </section>
 </div>
 
 @code {
@@ -62,10 +188,50 @@
         ApplyFilter();
     }
 
+    private void OnFilterChanged(ChangeEventArgs e)
+    {
+        selectedRange = int.Parse(e.Value?.ToString() ?? "10");
+        ApplyFilter();
+        StateHasChanged();
+    }
+
     private void ApplyFilter()
     {
-        if (scores == null) { filtered = new(); return; }
-        filtered = scores.OrderByDescending(s => s.AchievedAt).Take(selectedRange).ToList();
+        if (scores == null) 
+        { 
+            filtered = new(); 
+            return; 
+        }
+        
+        var orderedScores = scores.OrderByDescending(s => s.AchievedAt);
+        filtered = selectedRange == 0 ? 
+            orderedScores.ToList() : 
+            orderedScores.Take(selectedRange).ToList();
+    }
+
+    private void LoadMoreAdventures()
+    {
+        selectedRange = selectedRange + 25;
+        ApplyFilter();
+        StateHasChanged();
+    }
+
+    private string GetScoreRank(int score)
+    {
+        if (score >= 1000) return "legendary";
+        if (score >= 500) return "epic";
+        if (score >= 200) return "rare";
+        if (score >= 50) return "common";
+        return "basic";
+    }
+
+    private string GetScoreRankText(int score)
+    {
+        if (score >= 1000) return "Légendaire";
+        if (score >= 500) return "Épique";
+        if (score >= 200) return "Rare";
+        if (score >= 50) return "Commun";
+        return "Basique";
     }
 
     protected override void OnParametersSet()

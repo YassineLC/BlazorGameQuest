@@ -3,135 +3,175 @@
 <PageTitle>Tableau de Bord - BlazorGameQuest</PageTitle>
 
 <div class="dashboard-container">
-    <div class="container">
-        <!-- Header avec salutation -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="welcome-card">
-                    <h1>Bienvenue, @playerName !</h1>
-                    <p class="lead">Prêt pour une nouvelle aventure dans les donjons ?</p>
+    <!-- En-tête du tableau de bord -->
+    <section class="dashboard-header">
+        <div class="hero-welcome">
+            <div class="hero-content">
+                <h1 class="hero-title">Bienvenue, Noble @playerName</h1>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">@totalScore</div>
+                    <div class="stat-label">Points d'Honneur</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">@gamesPlayed</div>
+                    <div class="stat-label">Expéditions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">@(playerRank > 0 ? "#" + playerRank : "---")</div>
+                    <div class="stat-label">Rang</div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Actions rapides -->
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <div class="action-card h-100">
-                    <div class="card-body text-center">
-                        <h3>Nouvelle Aventure</h3>
-                        <p>Explorez un nouveau donjon et testez votre courage !</p>
-                        <a href="/game/new-adventure" class="btn btn-primary btn-lg">
-                            Commencer l'Aventure
-                        </a>
-                    </div>
+    <!-- Actions principales -->
+    <section class="dashboard-actions">
+        <div class="action-grid">
+            <div class="action-card action-card-primary">
+                <div class="action-icon">
+                    <i data-feather="zap"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Nouvelle Quête</h3>
+                    <p>Partez à l'aventure dans un donjon mystérieux</p>
+                    <a href="/game/new-adventure" class="btn btn-primary">
+                        <i data-feather="play"></i>
+                        Commencer l'Aventure
+                    </a>
                 </div>
             </div>
-            <div class="col-md-6 mb-3">
-                <div class="action-card h-100">
-                    <div class="card-body text-center">
-                        <h3>Mes Statistiques</h3>
-                        <p>Score total : <strong>@totalScore pts</strong></p>
-                        <p>Parties jouées : <strong>@gamesPlayed</strong></p>
-                        @if (playerRank > 0)
-                        {
-                            <p>Rang : <strong>#@playerRank</strong></p>
-                        }
-                        else
-                        {
-                            <p>Rang : <em>À venir</em></p>
-                        }
-                    </div>
+
+            <div class="action-card action-card-secondary">
+                <div class="action-icon">
+                    <i data-feather="file-text"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Historique</h3>
+                    <p>Consultez l'historique de vos précédentes parties</p>
+                    <a href="/player/history" class="btn btn-secondary">
+                        <i data-feather="book-open"></i>
+                        Voir l'Historique
+                    </a>
+                </div>
+            </div>
+
+            <div class="action-card action-card-accent">
+                <div class="action-icon">
+                    <i data-feather="award"></i>
+                </div>
+                <div class="action-content">
+                    <h3>Classements</h3>
+                    <p>Découvrez qui domine le classement</p>
+                    <a href="/leaderboard" class="btn btn-accent">
+                        <i data-feather="award"></i>
+                        Voir le Classement
+                    </a>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Statistiques détaillées -->
-        <div class="row mb-4">
-            <div class="col-lg-8">
-                <div class="stats-card">
-                    <h3>Historique des Parties</h3>
+    <!-- Contenu principal -->
+    <section class="dashboard-content">
+        <div class="content-grid">
+            <!-- Historique récent -->
+            <div class="dashboard-card recent-adventures">
+                <div class="card-header">
+                    <h3>
+                        <i data-feather="clock"></i>
+                        Dernières Expéditions
+                    </h3>
+                </div>
+                <div class="card-body">
                     @if (recentGames.Any())
                     {
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Salles Explorées</th>
-                                        <th>Score</th>
-                                        <th>Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var game in recentGames)
-                                    {
-                                        <tr>
-                                            <td>@game.Date.ToString("dd/MM/yyyy HH:mm")</td>
-                                            <td>@game.RoomsExplored</td>
-                                            <td>@game.Score pts</td>
-                                            <td>
-                                                <span class="badge @(game.IsCompleted ? "bg-success" : "bg-warning")">
-                                                    @(game.IsCompleted ? "Terminé" : "Mort")
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="text-center">
-                            <a href="/player/history" class="btn btn-outline-primary">
-                                Voir l'Historique Complet
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-4">
-                            <p>Aucune partie jouée pour le moment.</p>
-                            <a href="/game/new-adventure" class="btn btn-primary">
-                                Jouer Votre Première Partie
-                            </a>
-                        </div>
-                    }
-                </div>
-            </div>
-            
-            <div class="col-lg-4">
-                <div class="leaderboard-card">
-                    <h3>Top Joueurs</h3>
-                    @if (topPlayers.Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @for (int i = 0; i < topPlayers.Count && i < 5; i++)
+                        <div class="adventures-list">
+                            @foreach (var game in recentGames.Take(4))
                             {
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>
-                                        @if (i == 0) { <text>🥇</text> }
-                                        else if (i == 1) { <text>🥈</text> }
-                                        else if (i == 2) { <text>🥉</text> }
-                                        else { <text>@(i + 1).</text> }
-                                        @topPlayers[i].Name
-                                    </span>
-                                    <span class="badge bg-primary">@topPlayers[i].Score pts</span>
+                                <div class="adventure-item">
+                                    <div class="adventure-icon">
+                                        <i data-feather="@(game.IsCompleted ? "check-circle" : "x-circle")"></i>
+                                    </div>
+                                    <div class="adventure-info">
+                                        <div class="adventure-title">
+                                            Donjon de @game.RoomsExplored salles
+                                        </div>
+                                        <div class="adventure-meta">
+                                            @game.Date.ToString("dd MMM yyyy") • @game.Score pts
+                                        </div>
+                                    </div>
+                                    <div class="adventure-status @(game.IsCompleted ? "status-success" : "status-danger")">
+                                        @(game.IsCompleted ? "Victoire" : "Défaite")
+                                    </div>
                                 </div>
                             }
                         </div>
-                        <div class="text-center mt-3">
-                            <a href="/leaderboard" class="btn btn-outline-success btn-sm">
-                                Voir Classement Complet
+                        <div class="card-footer">
+                            <a href="/player/history" class="btn btn-outline">
+                                Voir toutes les aventures
                             </a>
                         </div>
                     }
                     else
                     {
-                        <p class="text-center">Classement à venir...</p>
+                        <div class="empty-state">
+                            <i data-feather="map"></i>
+                            <h4>Aucune aventure</h4>
+                            <p>Votre première quête vous attend !</p>
+                            <a href="/game/new-adventure" class="btn btn-primary">
+                                Commencer maintenant
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Classement -->
+            <div class="dashboard-card leaderboard-preview">
+                <div class="card-header">
+                    <h3>
+                        <i data-feather="users"></i>
+                        Hall des Champions
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if (topPlayers.Any())
+                    {
+                        <div class="champions-list">
+                            @for (int i = 0; i < Math.Min(topPlayers.Count, 5); i++)
+                            {
+                                <div class="champion-item @(i < 3 ? "champion-podium" : "")">
+                                    <div class="champion-rank">
+                                        @if (i == 0) { <i data-feather="award"></i> }
+                                        else if (i == 1) { <span class="rank-medal silver">2</span> }
+                                        else if (i == 2) { <span class="rank-medal bronze">3</span> }
+                                        else { <span class="rank-number">@(i + 1)</span> }
+                                    </div>
+                                    <div class="champion-name">@topPlayers[i].Name</div>
+                                    <div class="champion-score">@topPlayers[i].Score</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer">
+                            <a href="/leaderboard" class="btn btn-outline">
+                                Voir le classement complet
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i data-feather="star"></i>
+                            <h4>Hall vide</h4>
+                            <p>Soyez le premier héros !</p>
+                        </div>
                     }
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 
 @code {

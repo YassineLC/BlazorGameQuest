@@ -1,15 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlazorGame.Client</title>
+    <title>BlazorGameQuest - Aventure Textuelle</title>
+    <meta name="description" content="Jeu d'aventure textuel développé avec Blazor WebAssembly">
     <base href="/" />
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="BlazorGame.Client.styles.css" rel="stylesheet" />
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
 </head>
 
 <body>
@@ -22,11 +28,49 @@
     </div>
 
     <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
-        <span class="dismiss">🗙</span>
+        <div class="blazor-error-boundary">
+            <div class="error-content">
+                <i data-feather="alert-triangle"></i>
+                <div>
+                    <h4>Une erreur est survenue</h4>
+                    <p>Une erreur non gérée s'est produite.</p>
+                </div>
+            </div>
+            <div class="error-actions">
+                <a href="." class="reload btn">Recharger</a>
+                <button class="dismiss btn">✕</button>
+            </div>
+        </div>
     </div>
+    
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="js/feather-helper.js"></script>
+    
+    <!-- Initialiser Feather Icons -->
+    <script>
+        // Initialiser Feather Icons après le chargement de Blazor
+        window.addEventListener('DOMContentLoaded', function() {
+            if (typeof FeatherIcons !== 'undefined') {
+                FeatherIcons.replaceDelayed(100);
+            }
+        });
+
+        // Observer les changements de DOM pour re-initialiser les icônes
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes.length) {
+                        FeatherIcons.replaceDelayed(10);
+                    }
+                });
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    </script>
 </body>
 
 </html>

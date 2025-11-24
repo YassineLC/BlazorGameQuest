@@ -1,8 +1,11 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">BlazorGameQuest</a>
+        <a class="navbar-brand" href="">
+            <i data-feather="zap"></i>
+            BlazorGameQuest
+        </a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
+            <i data-feather="menu"></i>
         </button>
     </div>
 </div>
@@ -10,78 +13,124 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Accueil
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <i data-feather="home"></i>
+                <span>Accueil</span>
             </NavLink>
         </div>
 
         @* Menu Joueur *@
-        <div class="nav-item px-3 mt-2">
-            <div class="nav-section-title">Espace Joueur</div>
+        <div class="nav-section mt-3">
+            <div class="nav-section-header">
+                <i data-feather="user"></i>
+                <span>Joueur</span>
+            </div>
         </div>
+        
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="player/dashboard">Tableau de Bord
+            <NavLink class="nav-link" href="player/dashboard">
+                <i data-feather="activity"></i>
+                <span>Tableau de Bord</span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="game/new-adventure">Nouvelle Aventure
+            <NavLink class="nav-link" href="game/new-adventure">
+                <i data-feather="play"></i>
+                <span>Nouvelle Aventure</span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="player/history">Mon Historique
+            <NavLink class="nav-link" href="player/history">
+                <i data-feather="clock"></i>
+                <span>Mon Historique</span>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="leaderboard">Classements
+            <NavLink class="nav-link" href="leaderboard">
+                <i data-feather="award"></i>
+                <span>Classements</span>
             </NavLink>
         </div>
 
         @* Menu Admin (conditionnel) *@
         @if (isAdmin)
         {
-            <div class="nav-item px-3 mt-3">
-                <div class="nav-section-title">Administration</div>
+            <div class="nav-section mt-3">
+                <div class="nav-section-header">
+                    <i data-feather="shield"></i>
+                    <span>Administration</span>
+                </div>
             </div>
+            
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/dashboard">Admin Dashboard
+                <NavLink class="nav-link" href="admin/dashboard">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Admin Dashboard</span>
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/players">Gestion Joueurs
+                <NavLink class="nav-link" href="admin/players">
+                    <i data-feather="users"></i>
+                    <span>Gestion Joueurs</span>
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/games">Gestion Parties
+                <NavLink class="nav-link" href="admin/games">
+                    <i data-feather="gamepad-2"></i>
+                    <span>Gestion Parties</span>
                 </NavLink>
             </div>
         }
 
         @* Menu Authentification *@
-        <div class="nav-item px-3 mt-3">
-            <div class="nav-section-title">Compte</div>
+        <div class="nav-section mt-3">
+            <div class="nav-section-header">
+                <i data-feather="key"></i>
+                <span>Compte</span>
+            </div>
         </div>
+        
         @if (!isAuthenticated)
         {
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/login">Connexion
+                <NavLink class="nav-link" href="auth/login">
+                    <i data-feather="log-in"></i>
+                    <span>Connexion</span>
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/register">Inscription
+                <NavLink class="nav-link" href="auth/register">
+                    <i data-feather="user-plus"></i>
+                    <span>Inscription</span>
                 </NavLink>
             </div>
         }
         else
         {
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/profile">Mon Profil
+                <NavLink class="nav-link" href="auth/profile">
+                    <i data-feather="user"></i>
+                    <span>Mon Profil</span>
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <button class="nav-link btn btn-link text-start" @onclick="Logout">Déconnexion
+                <button class="nav-link btn btn-link text-start" @onclick="Logout">
+                    <i data-feather="log-out"></i>
+                    <span>Déconnexion</span>
                 </button>
             </div>
         }
     </nav>
+    
+    <!-- Indicateur de statut des services en bas -->
+    <div class="nav-footer">
+        <div class="nav-status px-3">
+            <div class="status-indicator">
+                <div class="status-dot status-online"></div>
+                <span class="status-text">Services en ligne</span>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -100,6 +149,28 @@
         // État temporaire - à remplacer par la vraie authentification
         isAuthenticated = false; // Par défaut non connecté
         isAdmin = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Rafraîchir les icônes Feather après chaque rendu
+        await Task.Delay(10); // Petit délai pour s'assurer que le DOM est mis à jour
+        await RefreshFeatherIcons();
+    }
+
+    private async Task RefreshFeatherIcons()
+    {
+        try
+        {
+            await Task.Run(() => 
+            {
+                // Cette méthode sera appelée côté client pour rafraîchir les icônes
+            });
+        }
+        catch
+        {
+            // Ignorer les erreurs si Feather n'est pas disponible
+        }
     }
 
     private void ToggleNavMenu()
