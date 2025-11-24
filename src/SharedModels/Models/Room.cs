@@ -9,7 +9,12 @@ namespace SharedModels.Models
   public enum RoomDifficulty { Easy, Medium, Hard }
 
   /// <summary>
-  /// Représente une salle d’un donjon avec ses pièges et ses objets
+  /// Types de salles dans le donjon (pour génération procédurale)
+  /// </summary>
+  public enum RoomType { Start, Combat, Treasure, Event, Shop, Rest, Boss }
+
+  /// <summary>
+  /// Représente une salle d'un donjon avec ses pièges et ses objets
   /// </summary>
   public class Room
   {
@@ -39,5 +44,26 @@ namespace SharedModels.Models
 
     /// <summary>Référence au donjon parent</summary>
     public Dungeon? Dungeon { get; set; }
+
+    // === Propriétés pour génération procédurale ===
+
+    /// <summary>Nom de la salle</summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>Profondeur dans le graphe du donjon</summary>
+    public int Depth { get; set; }
+
+    /// <summary>Type de salle (pour logique de jeu)</summary>
+    public RoomType Type { get; set; }
+
+    /// <summary>IDs des salles suivantes (stocké en JSON)</summary>
+    public string NextRoomIdsJson { get; set; } = "[]";
+
+    /// <summary>Helper pour manipuler les NextRoomIds</summary>
+    public List<Guid> NextRoomIds
+    {
+      get => System.Text.Json.JsonSerializer.Deserialize<List<Guid>>(NextRoomIdsJson) ?? new();
+      set => NextRoomIdsJson = System.Text.Json.JsonSerializer.Serialize(value);
+    }
   }
 }

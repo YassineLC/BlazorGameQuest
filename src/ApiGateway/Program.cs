@@ -1,61 +1,30 @@
 using System.Text.Json.Serialization;
 using ApiGateway.Data;
-using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
-// Charger le fichier .env depuis la racine du projet
-var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
-if (File.Exists(envPath))
-{
-    Env.Load(envPath);
-}
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Choix provider: InMemory pour tests, sinon Postgres
-var useInMemory = Environment.GetEnvironmentVariable("USE_IN_MEMORY")?.ToLower() == "true"
-                 || builder.Configuration.GetValue<bool>("UseInMemory");
+// Configuration de la base de données en mémoire
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseInMemoryDatabase("GameQuestDb"));
 
-if (useInMemory)
+builder.Services.AddHttpClient("GameService", client =>
 {
-    /// <summary>
-    /// Provider InMemory: pratique pour tester sans DB
-    /// </summary>
-    builder.Services.AddDbContext<AppDbContext>(opt =>
-        opt.UseInMemoryDatabase("GameQuestDb"));
-}
-else
+    client.BaseAddress = new Uri(builder.Configuration["Services:GameService"] ?? "https://localhost:7002");
+});
+
+// Configuration CORS pour permettre au client Blazor d'appeler l'API
+builder.Services.AddCors(options =>
 {
-    /// <summary>
-    /// Provider PostgreSQL: base réelle pour persistance
-    /// Utilise les variables d'environnement si disponibles, sinon les appsettings
-    /// </summary>
-    var connectionString = BuildConnectionString() ??
-                          builder.Configuration.GetConnectionString("Postgres");
-
-    builder.Services.AddDbContext<AppDbContext>(opt =>
-        opt.UseNpgsql(connectionString));
-}
-
-// Fonction pour construire la chaîne de connexion à partir des variables d'environnement
-string? BuildConnectionString()
-{
-    var host = Environment.GetEnvironmentVariable("DB_HOST");
-    var port = Environment.GetEnvironmentVariable("DB_PORT");
-    var database = Environment.GetEnvironmentVariable("DB_DATABASE");
-    var username = Environment.GetEnvironmentVariable("DB_USERNAME");
-    var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
-
-    if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port) ||
-        string.IsNullOrEmpty(database) || string.IsNullOrEmpty(username) ||
-        string.IsNullOrEmpty(password))
+    options.AddPolicy("AllowBlazorClient", policy =>
     {
-        return null;
-    }
-
-    return $"Host={host};Port={port};Database={database};Username={username};Password={password}";
-}
+        policy.WithOrigins("http://localhost:5000", "https://localhost:5000")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
@@ -87,6 +56,9 @@ builder.Services.AddSwaggerGen(options =>
 
 
 var app = builder.Build();
+
+// Activer CORS
+app.UseCors("AllowBlazorClient");
 
 if (app.Environment.IsDevelopment())
 {

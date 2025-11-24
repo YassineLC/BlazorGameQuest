@@ -1,4 +1,4 @@
-@page "/game/room/{RoomId:int}"
+@page "/game/room/{RoomId:guid}"
 
 <PageTitle>Salle @RoomId - BlazorGameQuest</PageTitle>
 
@@ -9,8 +9,8 @@
             <div class="col-12">
                 <div class="room-header-compact">
                     <div class="header-left">
-                        <div class="room-progress">@RoomId / @totalRooms</div>
-                        <h2 class="room-title">Salle @RoomId - Crypte Mystérieuse</h2>
+                        <div class="room-progress">@((currentRoom?.Order ?? 0)) / @totalRooms</div>
+                        <h2 class="room-title">@((currentRoom?.Name) ?? ($"Salle {RoomId}"))</h2>
                     </div>
                     <div class="header-right">
                         <a href="/player/dashboard" class="btn btn-secondary btn-abandon">Abandonner</a>
@@ -40,20 +40,23 @@
         <!-- Zone de choix - 3 boutons côte à côte -->
         <div class="row choices-row">
             <div class="col-4">
-                <button class="choice-btn-compact choice-combat w-100" @onclick="@(() => MakeChoice("combat"))">
+                <button class="choice-btn-compact choice-combat w-100" @onclick="@(() => MakeChoice("combat"))"
+                    disabled="@isProcessing">
                     Combattre
                     <small>Affronter les créatures élevé</small>
                 </button>
             </div>
             <div class="col-4">
-                <button class="choice-btn-compact choice-explore w-100" @onclick="@(() => MakeChoice("explore"))">
+                <button class="choice-btn-compact choice-explore w-100" @onclick="@(() => MakeChoice("explore"))"
+                    disabled="@isProcessing">
                     Explorer
                     <small>Fouiller la salle modéré</small>
                 </button>
             </div>
             <div class="col-4">
-                <button class="choice-btn-compact choice-flee w-100" @onclick="@(() => MakeChoice("flee"))">
-                     Fuir
+                <button class="choice-btn-compact choice-flee w-100" @onclick="@(() => MakeChoice("flee"))"
+                    disabled="@isProcessing">
+                    Fuir
                     <small>Battre en retraite faible</small>
                 </button>
             </div>
@@ -94,26 +97,89 @@
 </div>
 
 @code {
-    [Parameter] public int RoomId { get; set; }
-    private int totalRooms = 5;
+    [Parameter] public Guid RoomId { get; set; }
+    private int totalRooms = 0;
+    private Room? currentRoom;
+    private bool isProcessing = false;
+    private string? resultMessage;
+    private int displayedScore = 0;
 
     private async Task MakeChoice(string choice)
     {
-        // TODO: Implémenter la logique de choix
-        // await GameService.ProcessChoiceAsync(RoomId, choice);
-        
-        await Task.CompletedTask; // Placeholder pour éviter le warning
-        
-        // Pour l'instant, navigation vers la salle suivante ou fin de partie
-        if (RoomId < totalRooms)
+        isProcessing = true;
+        resultMessage = null;
+
+        try
         {
-            NavigationManager.NavigateTo($"/game/room/{RoomId + 1}");
+            // Utiliser la salle courante fournie par DungeonService si disponible
+            var room = DungeonService.CurrentRoom;
+            if (room == null)
+            {
+                resultMessage = "Aucune salle active.";
+                return;
+            }
+
+            if (GameService.CurrentSessionId == null)
+            {
+                resultMessage = "Aucune session active côté serveur.";
+                return;
+            }
+
+            var visit = await GameService.VisitRoomAsync(GameService.CurrentSessionId.Value, room.Id, choice);
+            if (visit == null)
+            {
+                displayedScore += room.PointsReward;
+                resultMessage = "Action traitée localement.";
+                ToastService.Show(resultMessage, "Action", ToastLevel.Info);
+            }
+            else
+            {
+                displayedScore = visit.NewScore;
+                resultMessage = visit.Message ?? "";
+                ToastService.Show(resultMessage, "Résultat", ToastLevel.Success);
+
+                // Naviguer vers la première salle suivante si fournie
+                if (visit.NextRoomIds != null && visit.NextRoomIds.Count > 0)
+                {
+                    var nextId = visit.NextRoomIds[0];
+                    var nextRoom = DungeonService.CurrentDungeon?.Rooms.FirstOrDefault(r => r.Id == nextId);
+                    if (nextRoom != null)
+                    {
+                        DungeonService.NavigateToRoom(nextRoom.Id);
+                        NavigationManager.NavigateTo($"/game/room/{nextRoom.Id}");
+                    }
+                }
+                else
+                {
+                    // aucune salle suivante => fin du donjon
+                    await GameService.EndSessionAsync(GameService.CurrentSessionId.Value);
+                    ToastService.Show("Donjon terminé. Score sauvegardé.", "Donjon", ToastLevel.Success);
+                    NavigationManager.NavigateTo("/game/victory");
+                }
+            }
         }
-        else
+        catch (Exception ex)
         {
-            NavigationManager.NavigateTo("/game/victory");
+            resultMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
         }
     }
 }
 
 @inject NavigationManager NavigationManager
+@inject DungeonService DungeonService
+@inject GameService GameService
+@inject ToastService ToastService
+
+@code {
+    protected override Task OnParametersSetAsync()
+    {
+        currentRoom = DungeonService.NavigateToRoom(RoomId);
+        totalRooms = DungeonService.CurrentDungeon?.Rooms.Count ?? 0;
+        return base.OnParametersSetAsync();
+    }
+}

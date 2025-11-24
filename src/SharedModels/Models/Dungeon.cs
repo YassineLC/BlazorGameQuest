@@ -17,6 +17,12 @@ namespace SharedModels.Models
     /// <summary>Date de création du donjon</summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>Seed pour génération procédurale (rejouabilité)</summary>
+    public int Seed { get; set; }
+
+    /// <summary>Profondeur maximale du donjon</summary>
+    public int MaxDepth { get; set; } = 10;
+
     /// <summary>Liste des salles appartenant à ce donjon</summary>
     public ICollection<Room> Rooms { get; set; } = new List<Room>();
   }

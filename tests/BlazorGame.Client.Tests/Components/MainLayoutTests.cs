@@ -2,11 +2,16 @@ using Bunit;
 using Xunit;
 using FluentAssertions;
 using BlazorGame.Client.Layout;
+using BlazorGame.Client.Tests.TestHelpers;
 
 namespace BlazorGame.Tests
 {
     public class MainLayoutTests : TestContext
     {
+        public MainLayoutTests()
+        {
+            this.AddDefaultClientServices();
+        }
         [Fact]
         public void MainLayout_RendersPageDivAndSidebar()
         {

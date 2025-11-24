@@ -1,11 +1,20 @@
 using Bunit;
 using Xunit;
 using BlazorGame.Client.Pages.Game;
+using System.Net.Http;
+using BlazorGame.Client.Services;
+using Microsoft.Extensions.DependencyInjection;
+using BlazorGame.Client.Tests.TestHelpers;
 
 namespace BlazorGame.Client.Tests.Pages.Game
 {
   public class NewAdventureTests : TestContext
   {
+    public NewAdventureTests()
+    {
+      this.AddDefaultClientServices();
+    }
+
     [Fact]
     public void NewAdventure_RendersTitleAndIntro()
     {

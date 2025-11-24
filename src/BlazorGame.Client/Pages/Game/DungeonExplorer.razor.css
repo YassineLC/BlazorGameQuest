@@ -1,0 +1,285 @@
+.dungeon-explorer {
+    background-color: #2d2d2d;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.dungeon-header {
+    background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+    border: 3px solid #c9aa71;
+    box-shadow: 6px 6px 0px #2a2a2a;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.dungeon-header h2 {
+    color: #c9aa71;
+    text-shadow: 2px 2px 0px #1a1a1a;
+    margin: 0;
+}
+
+.current-room-card {
+    background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+    border: 3px solid #666666;
+    box-shadow: 6px 6px 0px #2a2a2a, inset 2px 2px 0px #5a5a5a;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Effets d'arrière-plan animés selon le type */
+.current-room-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Combat - Ombres rouges pulsantes */
+.room-type-1::before {
+    background: radial-gradient(ellipse at 50% 50%, #a76c6c, transparent 70%);
+    animation: pulse-red 3s ease-in-out infinite;
+}
+
+/* Treasure - Scintillement doré */
+.room-type-2::before {
+    background: radial-gradient(circle at 30% 40%, #c9aa71, transparent 50%),
+                radial-gradient(circle at 70% 60%, #d4b87a, transparent 50%);
+    animation: shimmer 4s ease-in-out infinite;
+}
+
+/* Event - Brume mystérieuse bleue */
+.room-type-3::before {
+    background: radial-gradient(ellipse at 20% 80%, #8b9dc3, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, #6a7da3, transparent 60%);
+    animation: fog 8s ease-in-out infinite;
+}
+
+/* Shop - Lumière verte douce */
+.room-type-4::before {
+    background: radial-gradient(ellipse at 50% 30%, #7a9b76, transparent 70%);
+    animation: glow-green 5s ease-in-out infinite;
+}
+
+/* Rest - Feu de camp (gradient chaud) */
+.room-type-5::before {
+    background: linear-gradient(180deg, transparent 0%, #ff6600 50%, #ffaa00 70%, transparent 100%);
+    background-size: 200% 200%;
+    animation: fire 3s ease-in-out infinite;
+    opacity: 0.2;
+}
+
+/* Boss - Fumée sombre menaçante */
+.room-type-6::before {
+    background: radial-gradient(ellipse at 50% 100%, #5a3a3a, transparent 50%),
+                radial-gradient(ellipse at 30% 30%, #3a1a1a, transparent 60%);
+    animation: dark-smoke 6s ease-in-out infinite;
+}
+
+/* S'assurer que le contenu reste au-dessus */
+.room-header,
+.room-body {
+    position: relative;
+    z-index: 1;
+}
+
+/* Couleurs de bordure selon le type */
+.room-type-1 { border-color: #a76c6c; } /* Combat */
+.room-type-2 { border-color: #c9aa71; } /* Treasure */
+.room-type-3 { border-color: #8b9dc3; } /* Event */
+.room-type-4 { border-color: #7a9b76; } /* Shop */
+.room-type-5 { border-color: #8b8b8b; } /* Rest */
+.room-type-6 { border-color: #5a3a3a; } /* Boss */
+
+.room-header {
+    background-color: #3a3a3a;
+    padding: 15px 20px;
+    border-bottom: 3px solid #666666;
+}
+
+.room-header h3 {
+    color: #c9aa71;
+    font-size: 24px;
+    margin: 0;
+}
+
+.room-type-label {
+    color: #8b9dc3;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.room-body {
+    padding: 20px;
+}
+
+.room-description {
+    color: #d0d0d0;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.room-alert {
+    border: 2px solid;
+    padding: 10px 15px;
+    margin-top: 15px;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.alert-danger {
+    background-color: rgba(167, 108, 108, 0.2);
+    border-color: #a76c6c;
+    color: #ff9999;
+}
+
+.alert-treasure {
+    background-color: rgba(201, 170, 113, 0.2);
+    border-color: #c9aa71;
+    color: #d4b87a;
+}
+
+.alert-rest {
+    background-color: rgba(122, 155, 118, 0.2);
+    border-color: #7a9b76;
+    color: #85a681;
+}
+
+.choices-container {
+    background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+    border: 3px solid #c9aa71;
+    box-shadow: 6px 6px 0px #2a2a2a;
+    padding: 25px;
+}
+
+.choices-title {
+    color: #c9aa71;
+    text-shadow: 2px 2px 0px #1a1a1a;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.room-choices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.room-choice {
+    background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+    border: 3px solid #666666;
+    box-shadow: 4px 4px 0px #1a1a1a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.room-choice:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #1a1a1a;
+    border-color: #c9aa71;
+}
+
+/* Couleurs par type de salle */
+.room-choice-type-1 { border-color: #a76c6c; }
+.room-choice-type-1:hover { border-color: #c98a8a; }
+.room-choice-type-2 { border-color: #c9aa71; }
+.room-choice-type-2:hover { border-color: #d4b87a; }
+.room-choice-type-3 { border-color: #8b9dc3; }
+.room-choice-type-3:hover { border-color: #a0b0d0; }
+.room-choice-type-4 { border-color: #7a9b76; }
+.room-choice-type-4:hover { border-color: #85a681; }
+.room-choice-type-5 { border-color: #8b8b8b; }
+.room-choice-type-5:hover { border-color: #a0a0a0; }
+.room-choice-type-6 { border-color: #5a3a3a; }
+.room-choice-type-6:hover { border-color: #7a5050; }
+
+.room-choice-header {
+    background-color: #2d2d2d;
+    padding: 10px 15px;
+    border-bottom: 2px solid #666666;
+}
+
+.room-choice-type {
+    color: #c9aa71;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.room-choice-body {
+    padding: 15px;
+}
+
+.room-choice-name {
+    color: #d0d0d0;
+    font-size: 16px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.room-choice-desc {
+    color: #999;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    min-height: 60px;
+}
+
+.room-choice-footer {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dungeon-complete {
+    background: linear-gradient(145deg, #4a4a4a, #3a3a3a) !important;
+    border: 3px solid #7a9b76 !important;
+    border-radius: 8px;
+    box-shadow: 6px 6px 0px #2a2a2a, inset 2px 2px 4px rgba(255, 255, 255, 0.1) !important;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+}
+
+.dungeon-complete::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    background: linear-gradient(45deg, #c9aa71, #7a9b76, #c9aa71);
+    z-index: -1;
+    border-radius: 12px;
+}
+
+.dungeon-complete h4 {
+    color: #7a9b76;
+    font-size: 28px;
+    text-shadow: 2px 2px 0px #1a1a1a;
+}
+
+.dungeon-complete p {
+    color: #d0d0d0;
+    font-size: 16px;
+    margin-bottom: 25px;
+}
+
+.room-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .room-choices-grid {
+        grid-template-columns: 1fr;
+    }
+}

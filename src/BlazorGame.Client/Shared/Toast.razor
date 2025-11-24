@@ -1,0 +1,47 @@
+@inject BlazorGame.Client.Services.ToastService ToastService
+
+@code {
+    private List<BlazorGame.Client.Services.ToastMessage> messages = new();
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += Show;
+        ToastService.OnHide += Hide;
+    }
+
+    private void Show(BlazorGame.Client.Services.ToastMessage msg)
+    {
+        messages.Add(msg);
+        StateHasChanged();
+        _ = Task.Run(async () => { await Task.Delay(4000); ToastService.Hide(msg.Id); });
+    }
+
+    private void Hide(Guid id)
+    {
+        var m = messages.FirstOrDefault(x => x.Id == id);
+        if (m != null) messages.Remove(m);
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= Show;
+        ToastService.OnHide -= Hide;
+    }
+}
+
+<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 2000;">
+    @foreach (var t in messages)
+    {
+        <div class="toast show mb-2" role="alert" style="min-width: 260px;">
+            <div class="toast-header">
+                <strong class="me-auto">@(!string.IsNullOrEmpty(t.Title) ? t.Title : t.Level.ToString())</strong>
+                <small class="text-muted">now</small>
+                <button type="button" class="btn-close ms-2 mb-1" aria-label="Close" @onclick="() => ToastService.Hide(t.Id)"></button>
+            </div>
+            <div class="toast-body">
+                @t.Message
+            </div>
+        </div>
+    }
+</div>

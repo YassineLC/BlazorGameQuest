@@ -1,0 +1,62 @@
+﻿Summary
+  Generated on: 23/11/2025 - 20:48:11
+  Parser: MultiReportParser (3x CoberturaParser)
+  Assemblies: 3
+  Classes: 45
+  Files: 40
+  Line coverage: 23.1%
+  Covered lines: 580
+  Uncovered lines: 1927
+  Coverable lines: 2507
+  Total lines: 4450
+
+ApiGateway                                             20.2%
+  ApiGateway.Controllers.CreateDungeonRequest         100.0%
+  ApiGateway.Controllers.DungeonGenerationResult      100.0%
+  ApiGateway.Controllers.DungeonsController            81.1%
+  ApiGateway.Controllers.EndSessionRequest            100.0%
+  ApiGateway.Controllers.GameSessionsController       100.0%
+  ApiGateway.Controllers.ItemsController              100.0%
+  ApiGateway.Controllers.PlayController                90.2%
+  ApiGateway.Controllers.RoomsController              100.0%
+  ApiGateway.Controllers.ScoresController              91.6%
+  ApiGateway.Controllers.StartSessionRequest          100.0%
+  ApiGateway.Controllers.TrapsController              100.0%
+  ApiGateway.Controllers.UsersController              100.0%
+  ApiGateway.Controllers.VisitResult                  100.0%
+  ApiGateway.Controllers.VisitRoomRequest             100.0%
+  ApiGateway.Data.AppDbContext                         72.8%
+  ApiGateway.Migrations.AddDungeonGraphGeneration       0.0%
+  ApiGateway.Migrations.AddUniqueRoomOrderPerDungeon    0.0%
+  ApiGateway.Migrations.AppDbContextModelSnapshot       0.0%
+  ApiGateway.Migrations.InitGameQuestSchema             0.0%
+  Program                                               0.0%
+
+BlazorGame.Client                                      25.2%
+  BlazorGame.Client.Layout.MainLayout                 100.0%
+  BlazorGame.Client.Layout.NavMenu                     62.5%
+  BlazorGame.Client.Pages.Game.DungeonExplorer          0.0%
+  BlazorGame.Client.Pages.Game.GameRoom                16.9%
+  BlazorGame.Client.Pages.Game.NewAdventure            46.0%
+  BlazorGame.Client.Pages.Home                         75.0%
+  BlazorGame.Client.Pages.Login                        53.5%
+  BlazorGame.Client.Pages.Player.Dashboard             49.1%
+  BlazorGame.Client.Pages.Player.History                0.0%
+  BlazorGame.Client.Pages.Scores                        0.0%
+  BlazorGame.Client.Services.DungeonService            13.2%
+  BlazorGame.Client.Services.GameService               20.0%
+  BlazorGame.Client.Services.ScoresService             33.3%
+  BlazorGame.Client.Services.ToastMessage               0.0%
+  BlazorGame.Client.Services.ToastService               0.0%
+  BlazorGame.Client.Services.VisitResult                0.0%
+  BlazorGame.Client.Shared.Toast                       24.0%
+  Program                                               0.0%
+
+SharedModels                                           98.2%
+  GameSession                                         100.0%
+  SharedModels.Models.Dungeon                         100.0%
+  SharedModels.Models.Item                            100.0%
+  SharedModels.Models.Room                             93.3%
+  SharedModels.Models.Score                           100.0%
+  SharedModels.Models.Trap                            100.0%
+  SharedModels.Models.User                            100.0%

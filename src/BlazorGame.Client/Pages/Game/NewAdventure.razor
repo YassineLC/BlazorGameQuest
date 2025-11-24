@@ -96,10 +96,25 @@
                         
                         <div class="row mt-4">
                             <div class="col-12 text-center">
-                                <button class="btn btn-success btn-lg me-3" @onclick="StartAdventure">
-                                    Lancer l'Aventure
+                                @if (!string.IsNullOrEmpty(errorMessage))
+                                {
+                                    <div class="alert alert-danger mb-3">
+                                        @errorMessage
+                                    </div>
+                                }
+                                
+                                <button class="btn btn-success btn-lg me-3" @onclick="StartAdventure" disabled="@isLoading">
+                                    @if (isLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                        <span>Génération en cours...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Lancer l'Aventure</span>
+                                    }
                                 </button>
-                                <button class="btn btn-secondary" @onclick="GoBack">
+                                <button class="btn btn-secondary" @onclick="GoBack" disabled="@isLoading">
                                     Retour
                                 </button>
                             </div>
@@ -113,9 +128,11 @@
 
 @code {
     private bool showConfiguration = false;
-    private int selectedRoomCount = 4;
+    private bool isLoading = false;
+    private int selectedRoomCount = 5;
     private string selectedDifficulty = "Normale";
     private int estimatedRewards = 200;
+    private string? errorMessage;
 
     protected override void OnInitialized()
     {
@@ -125,11 +142,13 @@
     private void ShowConfiguration()
     {
         showConfiguration = true;
+        errorMessage = null;
     }
 
     private void GoBack()
     {
         showConfiguration = false;
+        errorMessage = null;
     }
 
     private void UpdateEstimatedRewards()
@@ -146,14 +165,44 @@
 
     private async Task StartAdventure()
     {
-        // TODO: Créer l'aventure avec les paramètres sélectionnés
-        // await GameService.CreateAdventureAsync(selectedRoomCount, selectedDifficulty);
-        
-        await Task.CompletedTask; // Placeholder pour éviter le warning
-        
-        // Redirection vers la première salle
-        NavigationManager.NavigateTo("/game/room/1");
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            // Créer le donjon via l'ApiGateway
+            var dungeonName = $"Donjon {DateTime.Now:HH:mm:ss}";
+            var dungeon = await DungeonService.CreateDungeonAsync(dungeonName, selectedRoomCount);
+
+                    if (dungeon != null)
+                    {
+                        var session = await GameService.StartSessionAsync(dungeon.Id);
+
+                        if (session != null)
+                        {
+                            NavigationManager.NavigateTo("/game/dungeon");
+                        }
+                        else
+                        {
+                            errorMessage = "Donjon créé mais impossible de démarrer la session.";
+                        }
+                    }
+            else
+            {
+                errorMessage = "Impossible de créer le donjon. Vérifiez que l'API est démarrée.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }
 
 @inject NavigationManager NavigationManager
+@inject DungeonService DungeonService
+@inject GameService GameService

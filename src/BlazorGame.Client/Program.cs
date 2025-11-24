@@ -1,11 +1,22 @@
+using BlazorGame.Client;
+using BlazorGame.Client.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using BlazorGame.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+// HttpClient configuré pour pointer vers l'ApiGateway
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("http://localhost:5001") // ApiGateway en développement
+});
+
+// Services métier
+builder.Services.AddScoped<DungeonService>();
+builder.Services.AddScoped<GameService>();
+builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<ScoresService>();
 
 await builder.Build().RunAsync();

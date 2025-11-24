@@ -1,0 +1,39 @@
+.victory-page .card-medieval {
+    background: linear-gradient(145deg, #4a4a4a, #3a3a3a) !important;
+    border: 3px solid #7a9b76 !important;
+    border-radius: 8px;
+    box-shadow: 6px 6px 0px #2a2a2a, inset 2px 2px 4px rgba(255, 255, 255, 0.1) !important;
+    position: relative;
+}
+
+.victory-page .card-medieval::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    background: linear-gradient(45deg, #c9aa71, #7a9b76, #c9aa71);
+    z-index: -1;
+    border-radius: 12px;
+}
+
+.victory-page h1 {
+    font-family: 'Cinzel Decorative', serif;
+    color: #c9aa71;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1rem;
+}
+
+.victory-page .lead {
+    font-family: 'Crimson Text', serif;
+    color: #d0d0d0;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.victory-page p {
+    color: #b0b0b0;
+    font-family: 'Crimson Text', serif;
+    margin-bottom: 1.5rem;
+}

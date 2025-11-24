@@ -1,0 +1,520 @@
+/* ===== HISTORY CONTAINER ===== */
+.history-container {
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+}
+
+/* ===== HEADER SECTION ===== */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, #2a2a2a 100%);
+    border-radius: 16px;
+    border: 2px solid var(--primary-gold);
+    box-shadow: 0 8px 32px rgba(201, 170, 113, 0.2);
+}
+
+.header-content h1 {
+    font-family: var(--font-decorative);
+    font-size: 2.25rem;
+    color: var(--primary-gold);
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.header-controls {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.filter-label i {
+    width: 16px;
+    height: 16px;
+}
+
+.filter-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(201, 170, 113, 0.3);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    border-color: var(--primary-gold);
+    background: rgba(255, 255, 255, 0.15);
+    outline: none;
+}
+
+/* ===== QUICK STATS ===== */
+.quick-stats {
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, #2a2a2a 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 2px solid rgba(201, 170, 113, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: var(--primary-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(201, 170, 113, 0.3);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon i {
+    width: 24px;
+    height: 24px;
+    stroke: var(--bg-secondary);
+    stroke-width: 2.5px;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-value {
+    font-family: var(--font-headers);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-gold);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.25rem;
+}
+
+/* ===== HISTORY CARD ===== */
+.history-card {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, #2a2a2a 100%);
+    border-radius: 16px;
+    border: 2px solid rgba(201, 170, 113, 0.2);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(201, 170, 113, 0.2);
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--primary-gold);
+}
+
+.card-header i {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2px;
+}
+
+.results-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.card-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(201, 170, 113, 0.2);
+    background: rgba(255, 255, 255, 0.02);
+    text-align: center;
+}
+
+/* ===== TIMELINE ===== */
+.adventures-timeline {
+    position: relative;
+    padding: 2rem;
+}
+
+.adventures-timeline::before {
+    content: '';
+    position: absolute;
+    left: 3rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary-gold) 0%, rgba(201, 170, 113, 0.3) 100%);
+}
+
+.timeline-item {
+    position: relative;
+    display: flex;
+    margin-bottom: 2rem;
+}
+
+.timeline-marker {
+    position: relative;
+    width: 6rem;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.marker-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--primary-gold);
+    border-radius: 50%;
+    border: 3px solid var(--bg-secondary);
+    box-shadow: 0 0 0 3px var(--primary-gold);
+}
+
+.timeline-content {
+    flex: 1;
+    margin-left: 1rem;
+}
+
+/* ===== ADVENTURE CARD ===== */
+.adventure-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.adventure-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(201, 170, 113, 0.3);
+    transform: translateX(4px);
+}
+
+.adventure-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.adventure-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.adventure-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.adventure-date i {
+    width: 16px;
+    height: 16px;
+}
+
+.adventure-time {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.adventure-score {
+    text-align: right;
+}
+
+.score-value {
+    font-family: var(--font-headers);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-gold);
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.adventure-body {
+    margin-bottom: 1rem;
+}
+
+.adventure-hero {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.adventure-hero i {
+    width: 18px;
+    height: 18px;
+    stroke: var(--primary-gold);
+}
+
+.adventure-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.adventure-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.adventure-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.stat-item i {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== SCORE BADGES ===== */
+.score-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.score-badge-legendary { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; }
+.score-badge-epic { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
+.score-badge-rare { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; }
+.score-badge-common { background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; }
+.score-badge-basic { background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; }
+
+/* ===== LOADING STATE ===== */
+.loading-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(201, 170, 113, 0.2);
+    border-left-color: var(--primary-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 2rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-state h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-headers);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-icon {
+    margin-bottom: 2rem;
+}
+
+.empty-icon i {
+    width: 64px;
+    height: 64px;
+    stroke: var(--text-secondary);
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-family: var(--font-headers);
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* ===== BUTTONS ===== */
+.btn.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-gold);
+    color: var(--primary-gold);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn.btn-outline:hover {
+    background: var(--primary-gold);
+    color: var(--bg-secondary);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    .history-header {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .history-container {
+        padding: 1rem;
+    }
+    
+    .history-header {
+        padding: 1.5rem;
+    }
+    
+    .header-content h1 {
+        font-size: 1.75rem;
+    }
+    
+    .adventures-timeline {
+        padding: 1rem;
+    }
+    
+    .adventures-timeline::before {
+        left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        width: 3rem;
+    }
+    
+    .adventure-card {
+        padding: 1rem;
+    }
+    
+    .adventure-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .adventure-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .stat-icon i {
+        width: 20px;
+        height: 20px;
+    }
+}
