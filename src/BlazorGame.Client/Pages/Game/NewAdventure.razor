@@ -174,11 +174,19 @@
             var dungeonName = $"Donjon {DateTime.Now:HH:mm:ss}";
             var dungeon = await DungeonService.CreateDungeonAsync(dungeonName, selectedRoomCount);
 
-            if (dungeon != null)
-            {
-                // Redirection vers la première salle (salle de départ)
-                NavigationManager.NavigateTo("/game/dungeon");
-            }
+                    if (dungeon != null)
+                    {
+                        var session = await GameService.StartSessionAsync(dungeon.Id);
+
+                        if (session != null)
+                        {
+                            NavigationManager.NavigateTo("/game/dungeon");
+                        }
+                        else
+                        {
+                            errorMessage = "Donjon créé mais impossible de démarrer la session.";
+                        }
+                    }
             else
             {
                 errorMessage = "Impossible de créer le donjon. Vérifiez que l'API est démarrée.";
@@ -197,3 +205,4 @@
 
 @inject NavigationManager NavigationManager
 @inject DungeonService DungeonService
+@inject GameService GameService

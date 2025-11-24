@@ -156,18 +156,8 @@
 
     private void NavigateToRoom(Guid roomId)
     {
-        currentRoom = DungeonService.NavigateToRoom(roomId);
-        
-        if (currentRoom != null)
-        {
-            // Ajouter les points de la nouvelle salle
-            totalPoints += currentRoom.PointsReward;
-            
-            // Charger les prochaines salles
-            nextRooms = DungeonService.GetNextRooms();
-        }
-        
-        StateHasChanged();
+        DungeonService.NavigateToRoom(roomId);
+        NavigationManager.NavigateTo($"/game/room/{roomId}");
     }
 
     private string GetRoomTypeLabel(RoomType type) => type switch
@@ -191,4 +181,5 @@
 
 @inject DungeonService DungeonService
 @inject NavigationManager NavigationManager
+@inject GameService GameService
 

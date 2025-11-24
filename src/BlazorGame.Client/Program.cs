@@ -15,5 +15,8 @@ builder.Services.AddScoped(sp => new HttpClient
 
 // Services métier
 builder.Services.AddScoped<DungeonService>();
+builder.Services.AddScoped<GameService>();
+builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<ScoresService>();
 
 await builder.Build().RunAsync();

@@ -1,0 +1,76 @@
+@page "/player/history"
+@inject BlazorGame.Client.Services.ScoresService ScoresService
+
+<PageTitle>Mon Historique - BlazorGameQuest</PageTitle>
+
+<div class="container mt-4 card-medieval p-3 history-page">
+    <h2>Mon Historique</h2>
+
+    <p class="lead">Liste de vos parties et scores. Si vous n'êtes pas connecté, affiche l'historique global.</p>
+
+    <div class="mb-3">
+        <label class="form-label">Afficher</label>
+        <select class="form-select" @bind="selectedRange">
+            <option value="10">Dernières 10</option>
+            <option value="25">Dernières 25</option>
+            <option value="50">Dernières 50</option>
+        </select>
+    </div>
+
+    @if (scores == null)
+    {
+        <p>Chargement...</p>
+    }
+    else if (!scores.Any())
+    {
+        <div class="alert alert-info">Aucun score enregistré.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Joueur</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in filtered)
+                    {
+                        <tr>
+                            <td>@s.AchievedAt.ToLocalTime().ToString("g")</td>
+                            <td>@(s.Player?.Username ?? s.PlayerId.ToString())</td>
+                            <td>@s.Value</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<SharedModels.Models.Score>? scores;
+    private List<SharedModels.Models.Score> filtered = new();
+    private int selectedRange = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        scores = await ScoresService.GetAllAsync();
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (scores == null) { filtered = new(); return; }
+        filtered = scores.OrderByDescending(s => s.AchievedAt).Take(selectedRange).ToList();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ApplyFilter();
+        base.OnParametersSet();
+    }
+}

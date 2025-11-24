@@ -1,0 +1,26 @@
+@page "/game/victory"
+
+<PageTitle>Victoire - BlazorGameQuest</PageTitle>
+
+<div class="victory-page container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="card-medieval p-4">
+                <h1 class="display-4">Victoire !</h1>
+                <p class="lead">Félicitations, vous avez terminé le donjon.</p>
+                <p>Votre score a été sauvegardé. Consultez l'historique des scores pour voir vos performances.</p>
+
+                <div class="mt-4">
+                    <a href="/player/history" class="btn btn-primary btn-lg me-2">Voir l'historique</a>
+                    <a href="/game/new-adventure" class="btn btn-success btn-lg me-2">Nouvelle Aventure</a>
+                    <a href="/player/dashboard" class="btn btn-secondary btn-lg">Tableau de Bord</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Simple confirmation page. If you want the page to display the actual
+    // saved score or session details, I can wire it to GameService / ScoresService.
+}
