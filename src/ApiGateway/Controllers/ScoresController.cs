@@ -17,13 +17,34 @@ namespace ApiGateway.Controllers
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Score>>> GetAll()
-        => await _db.Scores.Include(s => s.Player).ToListAsync();
+    {
+      var list = await _db.Scores.Include(s => s.Player).ToListAsync();
+
+      foreach (var s in list)
+      {
+        if (s.SessionId != null)
+        {
+          var session = await _db.GameSessions.Include(gs => gs.Dungeon).FirstOrDefaultAsync(gs => gs.Id == s.SessionId.Value);
+          s.DungeonName = session?.Dungeon?.Name;
+        }
+      }
+
+      return Ok(list);
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<Score>> GetById(Guid id)
     {
-      var score = await _db.Scores.FindAsync(id);
-      return score is null ? NotFound() : Ok(score);
+      var score = await _db.Scores.Include(s => s.Player).FirstOrDefaultAsync(s => s.Id == id);
+      if (score is null) return NotFound();
+
+      if (score.SessionId != null)
+      {
+        var session = await _db.GameSessions.Include(gs => gs.Dungeon).FirstOrDefaultAsync(gs => gs.Id == score.SessionId.Value);
+        score.DungeonName = session?.Dungeon?.Name;
+      }
+
+      return Ok(score);
     }
 
     [HttpPost]

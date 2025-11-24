@@ -30,7 +30,8 @@ namespace ApiGateway.Migrations
                 name: "NextRoomIds",
                 table: "Rooms",
                 type: "uuid[]",
-                nullable: false);
+                nullable: false,
+                defaultValueSql: "ARRAY[]::uuid[]");
 
             migrationBuilder.AddColumn<string>(
                 name: "NextRoomIdsJson",
