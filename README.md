@@ -2,6 +2,10 @@
 
 Un jeu d'aventure textuel développé avec Blazor WebAssembly
 
+> ** Note importante** : L'application utilise maintenant une **base de données en mémoire (InMemory)** 
+> au lieu de PostgreSQL pour simplifier l'installation et les tests. 
+> Les données sont créées automatiquement au démarrage et perdues à l'arrêt de l'application.
+
 Depuis le répertoire racine du projet, on exécute :
 
 ```powershell
@@ -13,9 +17,7 @@ dotnet test
 
 ### Prérequis additionnels
 
-- **PostgreSQL** (port 5433 recommandé)
-- **pgAdmin** pour la gestion de base de données
-- **Entity Framework Core Tools** : `dotnet tool install --global dotnet-ef` 
+- **Entity Framework Core Tools** : `dotnet tool install --global dotnet-ef` (optionnel, uniquement pour les migrations si vous repassez à une base persistante)
 
 ### Lancement de l'API
 
@@ -89,7 +91,7 @@ Avant de lancer l'application, créez un fichier `.env` à la racine du projet e
 copy .env.example .env
 ```
 
-Le fichier `.env` contient les variables d'environnement nécessaires, notamment les credentials de la base de données PostgreSQL. Un exemple de configuration est disponible dans `.env.example`.
+Le fichier `.env` n'est plus nécessaire car l'application utilise maintenant une base de données en mémoire. Vous pouvez supprimer le fichier `.env` s'il existe.
 
 ### Lancement de l'Application
 
@@ -164,34 +166,19 @@ dotnet restore
 
 ### Configuration de la base de données
 
-Ouvrir **pgAdmin** et créer une base nommée **gamequest**.
-Vérifier que PostgreSQL fonctionne (exemple :  port `5433`, utilisateur `postgres`, mot de passe `admin`).
+L'application utilise maintenant une base de données **en mémoire** (InMemory) qui ne nécessite aucune configuration. 
+Les données sont automatiquement créées au démarrage de l'application et perdues à l'arrêt.
 
-Dans `appsettings.json`, la chaîne de connexion doit ressembler à ceci :
-
-```json
-"ConnectionStrings": {
-  "Postgres": "Host=localhost;Port=5433;Database=gamequest;Username=postgres;Password=admin"
-}
-```
+Aucune installation de PostgreSQL ou configuration de chaîne de connexion n'est requise.
 
 ### Application des migrations
 
-⚠️ **Important** : Exécutez cette commande depuis le répertoire racine du projet.
+**Les migrations ne sont plus nécessaires** avec la base de données en mémoire. 
+Les tables sont automatiquement créées au démarrage de l'application selon les modèles définis.
 
-Installer l'outil Entity Framework Core si ce n'est pas déjà fait :
-
-```bash
-dotnet tool install --global dotnet-ef
-```
-
-Créer les tables dans la base avec :
-
-```bash
-dotnet ef database update --project src/ApiGateway --startup-project src/ApiGateway
-```
-
-**Note** : Si vous obtenez une erreur "Le fichier projet n'existe pas", vérifiez que vous êtes bien dans le répertoire racine du projet (où se trouve le fichier `BlazorGameQuest.sln`).
+Si vous souhaitez revenir à une base persistante plus tard, vous devrez :
+1. Réinstaller les dépendances PostgreSQL
+2. Recréer les migrations avec `dotnet ef migrations add`
 
 ### Lancement de l’API
 

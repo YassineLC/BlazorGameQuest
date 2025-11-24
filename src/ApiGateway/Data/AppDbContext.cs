@@ -38,35 +38,11 @@ namespace ApiGateway.Data
             if (!optionsBuilder.IsConfigured)
             {
                 /// <summary>
-                /// Connexion utilisée par les commandes dotnet-ef au design-time
-                /// Utilise les variables d'environnement si disponibles
+                /// Configuration par défaut pour les commandes dotnet-ef au design-time
+                /// Utilise la base de données en mémoire
                 /// </summary>
-                var connectionString = GetConnectionStringFromEnvironment() ??
-                    "Host=localhost;Port=5433;Database=gamequest;Username=postgres;Password=admin";
-
-                optionsBuilder.UseNpgsql(connectionString);
+                optionsBuilder.UseInMemoryDatabase("GameQuestDb");
             }
-        }
-
-        /// <summary>
-        /// Construit la chaîne de connexion à partir des variables d'environnement
-        /// </summary>
-        private static string? GetConnectionStringFromEnvironment()
-        {
-            var host = Environment.GetEnvironmentVariable("DB_HOST");
-            var port = Environment.GetEnvironmentVariable("DB_PORT");
-            var database = Environment.GetEnvironmentVariable("DB_DATABASE");
-            var username = Environment.GetEnvironmentVariable("DB_USERNAME");
-            var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
-
-            if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port) ||
-                string.IsNullOrEmpty(database) || string.IsNullOrEmpty(username) ||
-                string.IsNullOrEmpty(password))
-            {
-                return null;
-            }
-
-            return $"Host={host};Port={port};Database={database};Username={username};Password={password}";
         }
 
         /// <summary>
