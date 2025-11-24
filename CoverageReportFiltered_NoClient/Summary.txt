@@ -1,0 +1,35 @@
+﻿Summary
+  Generated on: 23/11/2025 - 20:50:08
+  Parser: MultiReportParser (3x CoberturaParser)
+  Assemblies: 2
+  Classes: 20
+  Files: 16
+  Line coverage: 91.3%
+  Covered lines: 442
+  Uncovered lines: 42
+  Coverable lines: 484
+  Total lines: 1133
+
+ApiGateway                                         90.3%
+  ApiGateway.Controllers.DungeonGenerationResult  100.0%
+  ApiGateway.Controllers.DungeonsController        81.1%
+  ApiGateway.Controllers.EndSessionRequest        100.0%
+  ApiGateway.Controllers.GameSessionsController   100.0%
+  ApiGateway.Controllers.ItemsController          100.0%
+  ApiGateway.Controllers.PlayController            90.2%
+  ApiGateway.Controllers.RoomsController          100.0%
+  ApiGateway.Controllers.ScoresController          91.6%
+  ApiGateway.Controllers.StartSessionRequest      100.0%
+  ApiGateway.Controllers.TrapsController          100.0%
+  ApiGateway.Controllers.UsersController          100.0%
+  ApiGateway.Controllers.VisitRoomRequest         100.0%
+  ApiGateway.Data.AppDbContext                     72.8%
+
+SharedModels                                       98.2%
+  GameSession                                     100.0%
+  SharedModels.Models.Dungeon                     100.0%
+  SharedModels.Models.Item                        100.0%
+  SharedModels.Models.Room                         93.3%
+  SharedModels.Models.Score                       100.0%
+  SharedModels.Models.Trap                        100.0%
+  SharedModels.Models.User                        100.0%

@@ -35,8 +35,9 @@ namespace ApiGateway.Tests.Controllers
       var ctrl = new ScoresController(db);
       var result = await ctrl.GetAll();
 
-      Assert.NotNull(result.Value);
-      Assert.Equal(2, result.Value.Count());
+      var ok = Assert.IsType<OkObjectResult>(result.Result);
+      var list = Assert.IsAssignableFrom<System.Collections.Generic.IEnumerable<Score>>(ok.Value);
+      Assert.Equal(2, list.Count());
     }
 
     [Fact]
@@ -183,6 +184,33 @@ namespace ApiGateway.Tests.Controllers
       var result = await ctrl.Delete(Guid.NewGuid());
 
       Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task GetAll_Should_Populate_DungeonName_When_Session_Linked()
+    {
+      using var db = GetDb();
+      var player = new User { Username = "D", Email = "d@local", PasswordHash = "pwd" };
+      db.Users.Add(player);
+
+      var dungeon = new Dungeon { Name = "TestDonjon" };
+      db.Dungeons.Add(dungeon);
+
+      var session = new GameSession { PlayerId = player.Id, DungeonId = dungeon.Id };
+      db.GameSessions.Add(session);
+
+      var score = new Score { PlayerId = player.Id, Value = 88, SessionId = session.Id };
+      db.Scores.Add(score);
+
+      await db.SaveChangesAsync();
+
+      var ctrl = new ScoresController(db);
+      var result = await ctrl.GetAll();
+
+      var ok = Assert.IsType<OkObjectResult>(result.Result);
+      var list = Assert.IsAssignableFrom<System.Collections.Generic.IEnumerable<Score>>(ok.Value);
+      var first = list.First();
+      Assert.Equal("TestDonjon", first.DungeonName);
     }
   }
 }

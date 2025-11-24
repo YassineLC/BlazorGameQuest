@@ -15,11 +15,12 @@ namespace ApiGateway.Tests.Controllers
     public async Task Create_ShouldReturnCreated_WhenValid()
     {
       using var db = TestDb.New();
-      var ctrl = new DungeonsController(db);
+      var httpFactory = new ApiGateway.Tests.TestHelpers.SimpleHttpClientFactory();
+      var ctrl = new DungeonsController(db, httpFactory);
 
-      var dungeon = new Dungeon { Name = "Donjon Mystique" };
+      var req = new CreateDungeonRequest("Donjon Mystique");
 
-      var result = await ctrl.Create(dungeon);
+      var result = await ctrl.Create(req);
 
       var created = result.Result as CreatedAtActionResult;
       created.Should().NotBeNull();
@@ -30,9 +31,10 @@ namespace ApiGateway.Tests.Controllers
     public async Task Create_ShouldReturnBadRequest_WhenNameMissing()
     {
       using var db = TestDb.New();
-      var ctrl = new DungeonsController(db);
+      var httpFactory = new ApiGateway.Tests.TestHelpers.SimpleHttpClientFactory();
+      var ctrl = new DungeonsController(db, httpFactory);
 
-      var result = await ctrl.Create(new Dungeon { Name = "" });
+      var result = await ctrl.Create(new CreateDungeonRequest(""));
 
       result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
@@ -45,7 +47,8 @@ namespace ApiGateway.Tests.Controllers
       db.Dungeons.Add(dungeon);
       await db.SaveChangesAsync();
 
-      var ctrl = new DungeonsController(db);
+      var httpFactory = new ApiGateway.Tests.TestHelpers.SimpleHttpClientFactory();
+      var ctrl = new DungeonsController(db, httpFactory);
 
       var result = await ctrl.GetById(dungeon.Id);
 
@@ -58,7 +61,8 @@ namespace ApiGateway.Tests.Controllers
     public async Task GetById_ShouldReturnNotFound_WhenNotExists()
     {
       using var db = TestDb.New();
-      var ctrl = new DungeonsController(db);
+      var httpFactory = new ApiGateway.Tests.TestHelpers.SimpleHttpClientFactory();
+      var ctrl = new DungeonsController(db, httpFactory);
 
       var result = await ctrl.GetById(Guid.NewGuid());
 
@@ -73,7 +77,8 @@ namespace ApiGateway.Tests.Controllers
       db.Dungeons.Add(dungeon);
       await db.SaveChangesAsync();
 
-      var ctrl = new DungeonsController(db);
+      var httpFactory = new ApiGateway.Tests.TestHelpers.SimpleHttpClientFactory();
+      var ctrl = new DungeonsController(db, httpFactory);
       var updated = new Dungeon { Id = dungeon.Id, Name = "Donjon Révisé", CreatedAt = DateTime.UtcNow };
 
       var result = await ctrl.Update(dungeon.Id, updated);
@@ -90,7 +95,8 @@ namespace ApiGateway.Tests.Controllers
       db.Dungeons.Add(dungeon);
       await db.SaveChangesAsync();
 
-      var ctrl = new DungeonsController(db);
+      var httpFactory = new ApiGateway.Tests.TestHelpers.SimpleHttpClientFactory();
+      var ctrl = new DungeonsController(db, httpFactory);
 
       var result = await ctrl.Delete(dungeon.Id);
 
@@ -102,7 +108,8 @@ namespace ApiGateway.Tests.Controllers
     public async Task Delete_ShouldReturnNotFound_WhenNotExists()
     {
       using var db = TestDb.New();
-      var ctrl = new DungeonsController(db);
+      var httpFactory = new ApiGateway.Tests.TestHelpers.SimpleHttpClientFactory();
+      var ctrl = new DungeonsController(db, httpFactory);
 
       var result = await ctrl.Delete(Guid.NewGuid());
 
