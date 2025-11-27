@@ -170,8 +170,8 @@
 
         try
         {
-            // Créer le donjon via l'ApiGateway
-            var dungeonName = $"Donjon {DateTime.Now:HH:mm:ss}";
+            // Créer le donjon via l'ApiGateway avec un nom plus descriptif
+            var dungeonName = $"Donjon - {selectedRoomCount} salles - {selectedDifficulty}";
             var dungeon = await DungeonService.CreateDungeonAsync(dungeonName, selectedRoomCount);
 
                     if (dungeon != null)

@@ -171,15 +171,6 @@ Les données sont automatiquement créées au démarrage de l'application et per
 
 Aucune installation de PostgreSQL ou configuration de chaîne de connexion n'est requise.
 
-### Application des migrations
-
-**Les migrations ne sont plus nécessaires** avec la base de données en mémoire. 
-Les tables sont automatiquement créées au démarrage de l'application selon les modèles définis.
-
-Si vous souhaitez revenir à une base persistante plus tard, vous devrez :
-1. Réinstaller les dépendances PostgreSQL
-2. Recréer les migrations avec `dotnet ef migrations add`
-
 ### Lancement de l’API
 
 ```bash

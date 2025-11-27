@@ -22,23 +22,26 @@
         }
         else
         {
-            <!-- En-tête avec infos donjon -->
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="dungeon-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h2 class="mb-0 text-uppercase">@dungeon.Name</h2>
-                                <small class="text-muted">Profondeur @currentRoom.Depth / @dungeon.MaxDepth</small>
-                            </div>
-                            <div>
-                                <span class="badge badge-primary me-2">Profondeur max: @dungeon.MaxDepth</span>
-                                <span class="badge badge-success">Points: @totalPoints</span>
+            @if (nextRooms.Count > 0)
+            {
+                <!-- En-tête avec infos donjon (caché après fin) -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="dungeon-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="mb-0 text-uppercase">@dungeon.Name</h2>
+                                    <small class="text-muted">Profondeur @currentRoom.Depth / @dungeon.MaxDepth</small>
+                                </div>
+                                <div>
+                                    <span class="badge badge-primary me-2">Profondeur max: @dungeon.MaxDepth</span>
+                                    <span class="badge badge-success">Points: @totalPoints</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
 
             <!-- Salle actuelle -->
             <div class="row mb-4">
@@ -120,7 +123,8 @@
                             <p class="text-center">Vous avez complété le donjon avec <strong>@totalPoints points</strong>!</p>
                             <div class="text-center">
                                 <a href="/game/new-adventure" class="btn btn-primary me-2">Nouvelle Aventure</a>
-                                <a href="/player/dashboard" class="btn btn-secondary">Tableau de Bord</a>
+                                <a href="/player/history" class="btn btn-primary me-2">Voir l'historique</a>
+                                <a href="/player/dashboard" class="btn btn-primary">Tableau de Bord</a>
                             </div>
                         </div>
                     </div>
@@ -151,13 +155,72 @@
 
         // Charger les salles suivantes dès l'initialisation
         nextRooms = DungeonService.GetNextRooms();
-        totalPoints = currentRoom?.PointsReward ?? 0;
+        totalPoints = 0;
+
+        // Enregistrer la visite de la salle courante (une seule fois) pour l'historique
+        if (currentRoom != null && GameService.CurrentSessionId != null && !DungeonService.HasVisited(currentRoom.Id))
+        {
+            var visit = await GameService.VisitRoomAsync(GameService.CurrentSessionId.Value, currentRoom.Id, null);
+            if (visit != null)
+            {
+                totalPoints = visit.NewScore;
+                DungeonService.MarkVisited(currentRoom.Id);
+            }
+            else
+            {
+                totalPoints = currentRoom.PointsReward;
+            }
+
+            // Rafraîchir après l'appel serveur
+            nextRooms = DungeonService.GetNextRooms();
+        }
+        else
+        {
+            totalPoints = currentRoom?.PointsReward ?? 0;
+        }
     }
 
     private void NavigateToRoom(Guid roomId)
     {
-        DungeonService.NavigateToRoom(roomId);
-        NavigationManager.NavigateTo($"/game/room/{roomId}");
+        // Rester sur l'overlay DungeonExplorer et persister la progression
+        var room = DungeonService.NavigateToRoom(roomId);
+        if (room is null) return;
+
+        currentRoom = room;
+
+        if (GameService.CurrentSessionId != null && !DungeonService.HasVisited(currentRoom.Id))
+        {
+            _ = PersistVisitAndRefreshAsync(currentRoom.Id);
+        }
+        else
+        {
+            totalPoints += currentRoom.PointsReward;
+            nextRooms = DungeonService.GetNextRooms();
+            StateHasChanged();
+        }
+    }
+
+    private async Task PersistVisitAndRefreshAsync(Guid roomId)
+    {
+        var visit = await GameService.VisitRoomAsync(GameService.CurrentSessionId!.Value, roomId, null);
+        if (visit != null)
+        {
+            totalPoints = visit.NewScore;
+            DungeonService.MarkVisited(roomId);
+        }
+
+        nextRooms = DungeonService.GetNextRooms();
+
+        // Si plus de salles: clôturer et permettre l'historique
+        if (nextRooms.Count == 0 || (visit?.IsFinished ?? false))
+        {
+            if (GameService.CurrentSessionId != null)
+            {
+                await GameService.EndSessionAsync(GameService.CurrentSessionId.Value);
+            }
+        }
+
+        StateHasChanged();
     }
 
     private string GetRoomTypeLabel(RoomType type) => type switch

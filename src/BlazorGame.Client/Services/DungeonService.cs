@@ -14,6 +14,7 @@ public class DungeonService
 
     private Dungeon? _currentDungeon;
     private Room? _currentRoom;
+    private readonly HashSet<Guid> _visitedRoomIds = new();
 
     public DungeonService(HttpClient http)
     {
@@ -64,6 +65,7 @@ public class DungeonService
         {
             // Définir la salle de départ
             _currentRoom = _currentDungeon.Rooms.FirstOrDefault(r => r.Type == RoomType.Start);
+            _visitedRoomIds.Clear();
         }
 
         return _currentDungeon;
@@ -87,6 +89,9 @@ public class DungeonService
         _currentRoom = _currentDungeon.Rooms.FirstOrDefault(r => r.Id == roomId);
         return _currentRoom;
     }
+
+    public bool HasVisited(Guid roomId) => _visitedRoomIds.Contains(roomId);
+    public void MarkVisited(Guid roomId) => _visitedRoomIds.Add(roomId);
 
     /// <summary>
     /// Récupère les salles suivantes accessibles depuis la salle actuelle
@@ -129,5 +134,6 @@ public class DungeonService
     {
         _currentDungeon = null;
         _currentRoom = null;
+        _visitedRoomIds.Clear();
     }
 }
