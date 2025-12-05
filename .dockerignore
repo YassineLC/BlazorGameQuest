@@ -1,0 +1,66 @@
+# Fichiers et dossiers à ignorer lors de la construction Docker
+
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+**/logs/
+**/TestResults/
+
+# Coverage reports
+CoverageReport/
+CoverageReportFiltered/
+CoverageReportFiltered_NoClient/
+
+# IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Docker files (pour éviter la récursion)
+**/Dockerfile*
+**/docker-compose*
+.dockerignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# Package managers
+**/packages/
+**/node_modules/
+**/.npm
+**/.nuget/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+**/*.tmp
+**/*.temp
+**/*.swp
+**/*.swo
+*~
+
+# Application specific
+appsettings.local.json
+appsettings.*.local.json
+
+# Scripts
+*.ps1
+*.bat
+*.sh
