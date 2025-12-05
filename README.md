@@ -111,29 +111,30 @@ docker-compose down
 docker-compose up --build --force-recreate api-gateway -d
 ```
 
-```powershell
-# Terminal 1 - AuthenticationServices
-cd src/AuthenticationServices
-dotnet run
+## Importer la configuration Keycloak
 
-2. **Méthode Manuelle (exécution directe, sans Docker)**
+Le dossier `keycloak-export` contient le fichier `blazorgamequest-realm.json` exporté depuis l'environnement de référence. Voici comment l'importer dans un nouveau Keycloak lancé via `docker-compose` :
+
+1. **Démarrer Keycloak**
    ```powershell
-   # Terminal 1 - AuthenticationServices
-   cd src/AuthenticationServices
-   dotnet run
-   
-   # Terminal 2 - GameService
-   cd src/GameService
-   dotnet run
-   
-   # Terminal 3 - ApiGateway
-   cd src/ApiGateway
-   dotnet run
-   
-   # Terminal 4 - Client Blazor
-   cd src/BlazorGame.Client
-   dotnet run
+   docker-compose up -d keycloak postgres-keycloak
    ```
+2. **Copier le fichier d'export dans le conteneur**
+   ```powershell
+   docker cp keycloak-export/blazorgamequest-realm.json keycloak:/opt/keycloak/data/import/
+   ```
+3. **Importer le realm** (le nom interne du realm est `blazorgamequest`)
+   ```powershell
+   docker exec -it keycloak /opt/keycloak/bin/kc.sh import `
+       --dir /opt/keycloak/data/import `
+       --realm blazorgamequest
+   ```
+4. **Redémarrer Keycloak pour prendre en compte l'import**
+   ```powershell
+   docker-compose restart keycloak
+   ```
+
+Après redémarrage, connectez-vous à l'admin console sur http://localhost:8080/ avec `admin` / `admin`, le realm `blazorgamequest` est prêt à l'emploi.
 
 ### URLs d'Accès
 
