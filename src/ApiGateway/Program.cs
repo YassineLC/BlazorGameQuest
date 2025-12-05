@@ -70,7 +70,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// Désactiver la redirection HTTPS si demandé (nécessaire pour le container Docker)
+var disableHttpsRedirection = Environment.GetEnvironmentVariable("DISABLE_HTTPS_REDIRECTION");
+if (!string.Equals(disableHttpsRedirection, "true", StringComparison.OrdinalIgnoreCase))
+{
+    app.UseHttpsRedirection();
+}
 app.MapControllers();
 
 app.Run();
