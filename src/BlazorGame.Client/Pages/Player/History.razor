@@ -1,5 +1,7 @@
 @page "/player/history"
+@using Microsoft.AspNetCore.Components.Authorization
 @inject BlazorGame.Client.Services.ScoresService ScoresService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Historique - BlazorGameQuest</PageTitle>
 
@@ -180,7 +182,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        scores = await ScoresService.GetAllAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var subClaim = user.FindFirst("sub")?.Value;
+            if (Guid.TryParse(subClaim, out var playerId))
+            {
+                scores = await ScoresService.GetByPlayerIdAsync(playerId);
+            }
+        }
+        
         ApplyFilter();
     }
 

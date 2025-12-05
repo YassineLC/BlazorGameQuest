@@ -1,0 +1,132 @@
+@page "/leaderboard"
+@using BlazorGame.Client.Services
+@using SharedModels.Models
+@inject ScoresService ScoresService
+
+<PageTitle>Classements - BlazorGameQuest</PageTitle>
+
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Tableau des Scores</h1>
+        <p class="lead">Les plus grands aventuriers du royaume</p>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-2">Récupération des archives...</p>
+        </div>
+    }
+    else if (scores == null || !scores.Any())
+    {
+        <div class="alert alert-info text-center">
+            Aucun score enregistré pour le moment. Soyez le premier à entrer dans la légende !
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">#</th>
+                                <th scope="col">Aventurier</th>
+                                <th scope="col" class="text-center">Parties Jouées</th>
+                                <th scope="col" class="text-end">Score Total</th>
+                                <th scope="col" class="text-center">Dernière Activité</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var leaderboardEntries = scores
+                                    .GroupBy(s => s.Player?.Username ?? "Joueur inconnu")
+                                    .Select(g => new 
+                                    { 
+                                        PlayerName = g.Key, 
+                                        TotalScore = g.Sum(s => s.Value),
+                                        GamesPlayed = g.Count(),
+                                        LastActive = g.Max(s => s.AchievedAt)
+                                    })
+                                    .OrderByDescending(e => e.TotalScore)
+                                    .ToList();
+                            }
+
+                            @foreach (var (entry, index) in leaderboardEntries.Select((e, i) => (e, i + 1)))
+                            {
+                                <tr class="@(index <= 3 ? "fw-bold" : "")">
+                                    <td class="text-center align-middle">
+                                        @if (index == 1)
+                                        {
+                                            <span class="fs-4">🥇</span>
+                                        }
+                                        else if (index == 2)
+                                        {
+                                            <span class="fs-4">🥈</span>
+                                        }
+                                        else if (index == 3)
+                                        {
+                                            <span class="fs-4">🥉</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary rounded-pill">@index</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-2 bg-primary text-white d-flex justify-content-center align-items-center" style="width: 32px; height: 32px; border-radius: 50%;">
+                                                @GetInitials(entry.PlayerName)
+                                            </div>
+                                            <span class="text-white">@entry.PlayerName</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <span class="badge bg-dark border border-secondary">@entry.GamesPlayed</span>
+                                    </td>
+                                    <td class="text-end align-middle font-monospace fs-5 text-warning">
+                                        @entry.TotalScore
+                                    </td>
+                                    <td class="text-center align-middle text-white small">
+                                        @entry.LastActive.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Score> scores = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            scores = await ScoresService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors du chargement des scores : {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetInitials(string? name)
+    {
+        if (string.IsNullOrEmpty(name)) return "?";
+        return name.Substring(0, 1).ToUpper();
+    }
+}

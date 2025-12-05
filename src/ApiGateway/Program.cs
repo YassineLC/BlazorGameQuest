@@ -14,6 +14,11 @@ builder.Services.AddHttpClient("GameService", client =>
     client.BaseAddress = new Uri(builder.Configuration["Services:GameService"] ?? "https://localhost:7002");
 });
 
+builder.Services.AddHttpClient("AuthService", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:AuthService"] ?? "http://localhost:5003");
+});
+
 // Configuration CORS pour permettre au client Blazor d'appeler l'API
 builder.Services.AddCors(options =>
 {

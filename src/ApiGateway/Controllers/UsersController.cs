@@ -68,5 +68,47 @@ namespace ApiGateway.Controllers
       await _db.SaveChangesAsync();
       return NoContent();
     }
+
+    /// <summary>Synchronise ou crée un utilisateur depuis Keycloak</summary>
+    [HttpPost("sync")]
+    public async Task<ActionResult<User>> SyncUser([FromBody] SyncUserRequest request)
+    {
+      if (string.IsNullOrWhiteSpace(request.Id) || string.IsNullOrWhiteSpace(request.Username))
+        return BadRequest("Id et Username sont requis.");
+
+      if (!Guid.TryParse(request.Id, out var userId))
+        return BadRequest("Id doit être un GUID valide.");
+
+      // Chercher si l'utilisateur existe déjà
+      var existingUser = await _db.Users.FindAsync(userId);
+
+      if (existingUser != null)
+      {
+        // Mettre à jour les informations si nécessaire
+        existingUser.Username = request.Username;
+        if (!string.IsNullOrEmpty(request.Email))
+          existingUser.Email = request.Email;
+
+        await _db.SaveChangesAsync();
+        return Ok(existingUser);
+      }
+
+      // Créer un nouvel utilisateur
+      var newUser = new User
+      {
+        Id = userId,
+        Username = request.Username,
+        Email = request.Email ?? $"{request.Username}@keycloak.local",
+        PasswordHash = "KEYCLOAK_MANAGED", // Le mot de passe est géré par Keycloak
+        Role = UserRole.Player
+      };
+
+      _db.Users.Add(newUser);
+      await _db.SaveChangesAsync();
+
+      return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
+    }
   }
+
+  public record SyncUserRequest(string Id, string Username, string? Email);
 }

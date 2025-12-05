@@ -1,4 +1,10 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using BlazorGame.Client.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">
             <i data-feather="zap"></i>
@@ -53,34 +59,35 @@
         </div>
 
         @* Menu Admin (conditionnel) *@
-        @if (isAdmin)
-        {
-            <div class="nav-section mt-3">
-                <div class="nav-section-header">
-                    <i data-feather="shield"></i>
-                    <span>Administration</span>
+        <AuthorizeView Roles="admin">
+            <Authorized>
+                <div class="nav-section mt-3">
+                    <div class="nav-section-header">
+                        <i data-feather="shield"></i>
+                        <span>Administration</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/dashboard">
-                    <i data-feather="bar-chart-2"></i>
-                    <span>Admin Dashboard</span>
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/players">
-                    <i data-feather="users"></i>
-                    <span>Gestion Joueurs</span>
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin/games">
-                    <i data-feather="gamepad-2"></i>
-                    <span>Gestion Parties</span>
-                </NavLink>
-            </div>
-        }
+                
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="admin/dashboard">
+                        <i data-feather="bar-chart-2"></i>
+                        <span>Admin Dashboard</span>
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="admin/players">
+                        <i data-feather="users"></i>
+                        <span>Gestion Joueurs</span>
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="admin/games">
+                        <i data-feather="gamepad-2"></i>
+                        <span>Gestion Parties</span>
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
 
         @* Menu Authentification *@
         <div class="nav-section mt-3">
@@ -90,36 +97,30 @@
             </div>
         </div>
         
-        @if (!isAuthenticated)
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/login">
-                    <i data-feather="log-in"></i>
-                    <span>Connexion</span>
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/register">
-                    <i data-feather="user-plus"></i>
-                    <span>Inscription</span>
-                </NavLink>
-            </div>
-        }
-        else
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="auth/profile">
-                    <i data-feather="user"></i>
-                    <span>Mon Profil</span>
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <button class="nav-link btn btn-link text-start" @onclick="Logout">
-                    <i data-feather="log-out"></i>
-                    <span>Déconnexion</span>
-                </button>
-            </div>
-        }
+        <AuthorizeView>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="auth/login">
+                        <i data-feather="log-in"></i>
+                        <span>Connexion</span>
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="auth/profile">
+                        <i data-feather="user"></i>
+                        <span>Mon Profil</span>
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <button class="nav-link btn btn-link text-start" @onclick="Logout">
+                        <i data-feather="log-out"></i>
+                        <span>Déconnexion</span>
+                    </button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </nav>
     
     <!-- Indicateur de statut des services en bas -->
@@ -135,21 +136,8 @@
 
 @code {
     private bool collapseNavMenu = true;
-    private bool isAuthenticated = false; // TODO: Récupérer depuis le service d'auth
-    private bool isAdmin = false; // TODO: Récupérer depuis le service d'auth
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    protected override void OnInitialized()
-    {
-        // TODO: Vérifier l'état d'authentification
-        // isAuthenticated = AuthService.IsAuthenticated();
-        // isAdmin = AuthService.IsAdmin();
-
-        // État temporaire - à remplacer par la vraie authentification
-        isAuthenticated = false; // Par défaut non connecté
-        isAdmin = false;
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -178,12 +166,9 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    private void Logout()
+    private async Task Logout()
     {
-        // TODO: Implémenter la déconnexion
-        // await AuthService.LogoutAsync();
-        isAuthenticated = false;
-        isAdmin = false;
-        StateHasChanged();
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/");
     }
 }

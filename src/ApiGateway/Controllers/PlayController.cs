@@ -13,7 +13,7 @@ namespace ApiGateway.Controllers
     public PlayController(AppDbContext db) => _db = db;
 
     /// <summary>
-    /// Démarre une session de jeu pour un joueur (ou crée un joueur 'guest' si absent)
+    /// Démarre une session de jeu pour un joueur (crée l'utilisateur s'il n'existe pas)
     /// </summary>
     [HttpPost("start")]
     public async Task<ActionResult<GameSession>> StartSession([FromBody] StartSessionRequest req)
@@ -23,8 +23,26 @@ namespace ApiGateway.Controllers
       if (req.PlayerId != null)
       {
         var p = await _db.Users.FindAsync(req.PlayerId.Value);
-        if (p == null) return BadRequest("Player not found");
-        playerId = p.Id;
+        if (p == null)
+        {
+          // L'utilisateur n'existe pas, le créer automatiquement
+          // Cela peut arriver si la synchronisation Keycloak a échoué
+          var newUser = new User
+          {
+            Id = req.PlayerId.Value,
+            Username = req.Username ?? "Joueur",
+            Email = req.Email ?? $"user{req.PlayerId.Value}@keycloak.local",
+            PasswordHash = "KEYCLOAK_MANAGED",
+            Role = UserRole.Player
+          };
+          _db.Users.Add(newUser);
+          await _db.SaveChangesAsync();
+          playerId = newUser.Id;
+        }
+        else
+        {
+          playerId = p.Id;
+        }
       }
       else
       {
@@ -32,7 +50,7 @@ namespace ApiGateway.Controllers
         var guest = await _db.Users.FirstOrDefaultAsync(u => u.Username == "guest");
         if (guest == null)
         {
-          guest = new User { Username = "guest", Email = "guest@local", Role = UserRole.Player };
+          guest = new User { Username = "guest", Email = "guest@local", PasswordHash = "N/A", Role = UserRole.Player };
           _db.Users.Add(guest);
           await _db.SaveChangesAsync();
         }
@@ -59,7 +77,7 @@ namespace ApiGateway.Controllers
     /// <summary>
     /// Marque la visite d'une salle par la session (ajoute les points, peut terminer la session)
     /// </summary>
-    [HttpPost("visit")] 
+    [HttpPost("visit")]
     public async Task<ActionResult<VisitResult>> VisitRoom([FromBody] VisitRoomRequest req)
     {
       var session = await _db.GameSessions.FindAsync(req.SessionId);
@@ -142,7 +160,7 @@ namespace ApiGateway.Controllers
     }
   }
 
-  public record StartSessionRequest(Guid? PlayerId, Guid DungeonId);
+  public record StartSessionRequest(Guid? PlayerId, Guid DungeonId, string? Username, string? Email);
   public record VisitRoomRequest(Guid SessionId, Guid RoomId, string? Choice);
   public class VisitResult
   {

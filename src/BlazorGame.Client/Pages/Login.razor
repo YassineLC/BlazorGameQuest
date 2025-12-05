@@ -1,4 +1,9 @@
 @page "/auth/login"
+@using BlazorGame.Client.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Connexion - BlazorGameQuest</PageTitle>
 
@@ -17,8 +22,8 @@
                         <ValidationSummary class="text-danger" />
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <InputText id="email" class="form-control" @bind-Value="loginModel.Email" placeholder="votre@email.com" />
+                            <label for="email" class="form-label">Nom d'utilisateur</label>
+                            <InputText id="email" class="form-control" @bind-Value="loginModel.Email" placeholder="Nom d'utilisateur" />
                             <ValidationMessage For="@(() => loginModel.Email)" />
                         </div>
 
@@ -54,10 +59,6 @@
                     </EditForm>
 
                     <div class="text-center mt-3">
-                        <p>
-                            Pas encore de compte ? 
-                            <a href="/auth/register">S'inscrire</a>
-                        </p>
                         <a href="/">← Retour à l'accueil</a>
                     </div>
                 </div>
@@ -71,6 +72,15 @@
     private bool isLoading = false;
     private string errorMessage = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            NavigationManager.NavigateTo("/player/dashboard");
+        }
+    }
+
     private async Task HandleLogin()
     {
         isLoading = true;
@@ -78,24 +88,19 @@
 
         try
         {
-            // TODO: Implémenter l'authentification
-            // var result = await AuthService.LoginAsync(loginModel);
-            // if (result.Success)
-            // {
-            //     NavigationManager.NavigateTo("/player/dashboard");
-            // }
-            // else
-            // {
-            //     errorMessage = result.ErrorMessage;
-            // }
-
-            // Redirection temporaire - à remplacer par la vraie authentification
-            await Task.Delay(1000);
-            NavigationManager.NavigateTo("/player/dashboard");
+            var result = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+            if (result.Success)
+            {
+                NavigationManager.NavigateTo("/player/dashboard");
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Erreur de connexion";
+            }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            errorMessage = "Erreur de connexion. Authentification à implémenter.";
+            errorMessage = "Erreur de connexion: " + ex.Message;
         }
         finally
         {
@@ -105,16 +110,12 @@
 
     public class LoginModel
     {
-        [Required(ErrorMessage = "L'email est requis")]
-        [EmailAddress(ErrorMessage = "Format d'email invalide")]
+        [Required(ErrorMessage = "Le nom d'utilisateur est requis")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Le mot de passe est requis")]
-        [MinLength(6, ErrorMessage = "Le mot de passe doit contenir au moins 6 caractères")]
         public string Password { get; set; } = string.Empty;
 
         public bool RememberMe { get; set; }
     }
 }
-
-@inject NavigationManager NavigationManager

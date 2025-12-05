@@ -1,0 +1,104 @@
+using System.Security.Claims;
+using System.Text.Json;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
+
+namespace BlazorGame.Client.Services;
+
+public class CustomAuthStateProvider : AuthenticationStateProvider
+{
+    private readonly IJSRuntime _jsRuntime;
+    private readonly HttpClient _httpClient;
+
+    public CustomAuthStateProvider(IJSRuntime jsRuntime, HttpClient httpClient)
+    {
+        _jsRuntime = jsRuntime;
+        _httpClient = httpClient;
+    }
+
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        try
+        {
+            var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt")));
+        }
+        catch
+        {
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
+    }
+
+    public void NotifyUserAuthentication(string token)
+    {
+        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt"));
+        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
+
+    public void NotifyUserLogout()
+    {
+        var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+        var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
+
+    private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    {
+        var payload = jwt.Split('.')[1];
+        var jsonBytes = ParseBase64WithoutPadding(payload);
+        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+
+        var claims = keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())).ToList();
+
+        // Mapping spécifique pour Keycloak
+        // Si "preferred_username" existe, on l'ajoute comme ClaimTypes.Name pour que User.Identity.Name fonctionne
+        if (keyValuePairs.TryGetValue("preferred_username", out var username))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, username.ToString()));
+        }
+        // Fallback sur "name" si preferred_username n'est pas là
+        else if (keyValuePairs.TryGetValue("name", out var name))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, name.ToString()));
+        }
+
+        // Gestion des rôles (realm_access.roles ou resource_access.client.roles)
+        // Keycloak met souvent les rôles dans une structure JSON complexe
+        if (keyValuePairs.TryGetValue("realm_access", out var realmAccessObj))
+        {
+            try
+            {
+                var realmAccess = JsonSerializer.Deserialize<JsonElement>(realmAccessObj.ToString());
+                if (realmAccess.TryGetProperty("roles", out var rolesElement))
+                {
+                    foreach (var role in rolesElement.EnumerateArray())
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, role.GetString()));
+                    }
+                }
+            }
+            catch { /* Ignorer les erreurs de parsing des rôles */ }
+        }
+
+        return claims;
+    }
+
+    private byte[] ParseBase64WithoutPadding(string base64)
+    {
+        switch (base64.Length % 4)
+        {
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
+        }
+        return Convert.FromBase64String(base64);
+    }
+}

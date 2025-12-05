@@ -1,4 +1,6 @@
 @page "/game/new-adventure"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 
 <PageTitle>Nouvelle Aventure - BlazorGameQuest</PageTitle>
 
@@ -170,23 +172,45 @@
 
         try
         {
+            // Récupérer l'ID du joueur s'il est connecté
+            Guid? playerId = null;
+            string? username = null;
+            string? email = null;
+            
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                // Chercher le claim "sub" (subject) qui contient l'ID Keycloak
+                var subClaim = user.FindFirst("sub")?.Value;
+                if (Guid.TryParse(subClaim, out var parsedId))
+                {
+                    playerId = parsedId;
+                }
+                
+                // Extraire le nom d'utilisateur et l'email
+                username = user.FindFirst("preferred_username")?.Value ?? user.Identity?.Name;
+                email = user.FindFirst("email")?.Value;
+            }
+
             // Créer le donjon via l'ApiGateway avec un nom plus descriptif
             var dungeonName = $"Donjon - {selectedRoomCount} salles - {selectedDifficulty}";
             var dungeon = await DungeonService.CreateDungeonAsync(dungeonName, selectedRoomCount);
 
-                    if (dungeon != null)
-                    {
-                        var session = await GameService.StartSessionAsync(dungeon.Id);
+            if (dungeon != null)
+            {
+                var session = await GameService.StartSessionAsync(dungeon.Id, playerId, username, email);
 
-                        if (session != null)
-                        {
-                            NavigationManager.NavigateTo("/game/dungeon");
-                        }
-                        else
-                        {
-                            errorMessage = "Donjon créé mais impossible de démarrer la session.";
-                        }
-                    }
+                if (session != null)
+                {
+                    NavigationManager.NavigateTo("/game/dungeon");
+                }
+                else
+                {
+                    errorMessage = "Donjon créé mais impossible de démarrer la session.";
+                }
+            }
             else
             {
                 errorMessage = "Impossible de créer le donjon. Vérifiez que l'API est démarrée.";
@@ -206,3 +230,4 @@
 @inject NavigationManager NavigationManager
 @inject DungeonService DungeonService
 @inject GameService GameService
+@inject AuthenticationStateProvider AuthenticationStateProvider

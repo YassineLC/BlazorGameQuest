@@ -15,9 +15,9 @@ public class GameService
         _http = http;
     }
 
-    public async Task<GameSession?> StartSessionAsync(Guid dungeonId, Guid? playerId = null)
+    public async Task<GameSession?> StartSessionAsync(Guid dungeonId, Guid? playerId = null, string? username = null, string? email = null)
     {
-        var req = new { PlayerId = playerId, DungeonId = dungeonId };
+        var req = new { PlayerId = playerId, DungeonId = dungeonId, Username = username, Email = email };
         var resp = await _http.PostAsJsonAsync($"{_apiBase}/start", req);
         if (!resp.IsSuccessStatusCode) return null;
 

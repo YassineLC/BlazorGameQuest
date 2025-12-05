@@ -47,6 +47,23 @@ namespace ApiGateway.Controllers
       return Ok(score);
     }
 
+    [HttpGet("player/{playerId:guid}")]
+    public async Task<ActionResult<IEnumerable<Score>>> GetByPlayerId(Guid playerId)
+    {
+      var list = await _db.Scores.Include(s => s.Player).Where(s => s.PlayerId == playerId).ToListAsync();
+
+      foreach (var s in list)
+      {
+        if (s.SessionId != null)
+        {
+          var session = await _db.GameSessions.Include(gs => gs.Dungeon).FirstOrDefaultAsync(gs => gs.Id == s.SessionId.Value);
+          s.DungeonName = session?.Dungeon?.Name;
+        }
+      }
+
+      return Ok(list);
+    }
+
     [HttpPost]
     public async Task<ActionResult<Score>> Create([FromBody] Score score)
     {

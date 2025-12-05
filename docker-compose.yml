@@ -11,6 +11,8 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - DISABLE_HTTPS_REDIRECTION=true
       - UseInMemoryDatabase=true
+      - Keycloak__Authority=http://keycloak:8080/realms/BlazorGameQuest
+      - Keycloak__ValidIssuer=http://localhost:8080/realms/BlazorGameQuest
     ports:
       - "5003:8080"
     networks:
@@ -77,6 +79,46 @@ services:
       - blazor-game-network
     restart: unless-stopped
 
+  # Keycloak Identity Provider
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
+      KC_HTTP_ENABLED: "true"
+    command: start-dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-keycloak
+    networks:
+      - blazor-game-network
+
+  # Database for Keycloak
+  postgres-keycloak:
+    image: postgres:15
+    container_name: postgres-keycloak
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_keycloak_data:/var/lib/postgresql/data
+    networks:
+      - blazor-game-network
+
 networks:
   blazor-game-network:
     driver: bridge
+
+volumes:
+  postgres_keycloak_data:

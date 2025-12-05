@@ -24,9 +24,6 @@ namespace BlazorGame.Client.Tests.Pages
 
       var submitButton = cut.Find("button[type='submit']");
       Assert.Contains("Se Connecter", submitButton.TextContent);
-
-      var registerLink = cut.Find("a[href='/auth/register']");
-      Assert.Contains("S'inscrire", registerLink.TextContent);
     }
 
     [Fact]
