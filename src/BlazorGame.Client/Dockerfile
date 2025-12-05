@@ -12,6 +12,7 @@ FROM nginx:alpine AS final
 WORKDIR /usr/share/nginx/html
 COPY --from=build /app/publish/wwwroot .
 EXPOSE 8080
-# Adapter nginx à 8080
-RUN sed -i 's/listen\s\+80;/listen 8080;/g' /etc/nginx/conf.d/default.conf
+# Config Nginx personnalisée pour SPA (fallback index.html)
+# Utiliser le chemin relatif au contexte de build
+COPY src/BlazorGame.Client/nginx.conf /etc/nginx/conf.d/default.conf
 CMD ["nginx", "-g", "daemon off;"]

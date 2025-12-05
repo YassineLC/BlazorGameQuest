@@ -44,6 +44,8 @@
             }
 
             <!-- Salle actuelle -->
+            @if (nextRooms.Count > 0)
+            {
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="current-room-card room-type-@((int)currentRoom.Type)">
@@ -84,6 +86,8 @@
                     </div>
                 </div>
             </div>
+
+            }
 
             <!-- Actions / Salles suivantes -->
             @if (nextRooms.Count > 0)

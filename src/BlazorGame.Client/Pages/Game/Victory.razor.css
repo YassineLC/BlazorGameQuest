@@ -19,14 +19,14 @@
 }
 
 .victory-page h1 {
-    font-family: 'Cinzel Decorative', serif;
+    font-family: 'Press Start 2P', monospace !important;
     color: #c9aa71;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     margin-bottom: 1rem;
 }
 
 .victory-page .lead {
-    font-family: 'Crimson Text', serif;
+    font-family: 'Press Start 2P', monospace !important;
     color: #d0d0d0;
     font-size: 1.2rem;
     line-height: 1.6;
@@ -34,6 +34,6 @@
 
 .victory-page p {
     color: #b0b0b0;
-    font-family: 'Crimson Text', serif;
+    font-family: 'Press Start 2P', monospace !important;
     margin-bottom: 1.5rem;
 }
