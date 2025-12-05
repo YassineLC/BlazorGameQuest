@@ -1,0 +1,82 @@
+services:
+  # Service d'authentification
+  auth-service:
+    build:
+      context: .
+      dockerfile: src/AuthenticationServices/Dockerfile
+    container_name: auth-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
+      - DISABLE_HTTPS_REDIRECTION=true
+      - UseInMemoryDatabase=true
+    ports:
+      - "5003:8080"
+    networks:
+      - blazor-game-network
+    restart: unless-stopped
+
+  # Service de jeu
+  game-service:
+    build:
+      context: .
+      dockerfile: src/GameService/Dockerfile
+    container_name: game-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
+      - DISABLE_HTTPS_REDIRECTION=true
+      - UseInMemoryDatabase=true
+    ports:
+      - "5002:8080"
+    networks:
+      - blazor-game-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+    container_name: api-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
+      - DISABLE_HTTPS_REDIRECTION=true
+      - UseInMemoryDatabase=true
+      - Services__AuthService=http://auth-service:8080
+      - Services__GameService=http://game-service:8080
+    ports:
+      - "5001:8080"
+    depends_on:
+      - auth-service
+      - game-service
+    networks:
+      - blazor-game-network
+    restart: unless-stopped
+
+  # Client Blazor
+  blazor-client:
+    build:
+      context: .
+      dockerfile: src/BlazorGame.Client/Dockerfile
+    container_name: blazor-client
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ApiSettings__BaseUrl=http://api-gateway:8080
+    ports:
+      - "5000:8080"
+    depends_on:
+      - api-gateway
+    networks:
+      - blazor-game-network
+    restart: unless-stopped
+
+networks:
+  blazor-game-network:
+    driver: bridge

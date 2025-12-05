@@ -24,7 +24,8 @@ dotnet test
 ```bash
 cd src/ApiGateway
 dotnet run
-```vers de style Metroidvania.
+```
+vers de style Metroidvania.
 
 ![Build Status](https://github.com/YassineLC/BlazorGameQuest/workflows/Build/badge.svg)
 ![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
@@ -80,28 +81,42 @@ BlazorGameQuest/
 ### Prérequis
 
 - .NET 9.0 SDK
-- PowerShell (pour les scripts de démarrage)
+- Docker Desktop
 
-### Configuration
+### Conteneurisation (Docker)
 
-Avant de lancer l'application, créez un fichier `.env` à la racine du projet en vous basant sur le fichier `.env.example` fourni :
+L'application est containerisée avec Docker Compose. La base de données utilisée est **InMemory** (aucun service de base de données externe requis).
+
+#### Démarrer les services
 
 ```powershell
-# Copiez le fichier exemple
-copy .env.example .env
+# Depuis la racine du projet
+docker-compose up --build -d
 ```
 
-Le fichier `.env` n'est plus nécessaire car l'application utilise maintenant une base de données en mémoire. Vous pouvez supprimer le fichier `.env` s'il existe.
+#### Vérifier l'état et les logs
+
+```powershell
+docker-compose ps
+docker-compose logs -f
+```
+
+#### Arrêter les services
+
+```powershell
+docker-compose down
+```
+
+#### Redémarrer un service spécifique
+
+```powershell
+# Exemple : API Gateway
+docker-compose up --build --force-recreate api-gateway -d
+```
 
 ### Lancement de l'Application
 
-1. **Méthode Automatique (Recommandée)**
-   ```powershell
-   # Depuis le répertoire racine du projet
-   .\start-services.ps1
-   ```
-
-2. **Méthode Manuelle**
+2. **Méthode Manuelle (exécution directe, sans Docker)**
    ```powershell
    # Terminal 1 - AuthenticationServices
    cd src/AuthenticationServices
@@ -123,25 +138,18 @@ Le fichier `.env` n'est plus nécessaire car l'application utilise maintenant un
 ### URLs d'Accès
 
 - **Jeu (Interface Joueur)** : http://localhost:5000
-- **Administration** : http://localhost:5000/admin
 - **API Gateway** : http://localhost:5001
 - **Game Service API** : http://localhost:5002
 - **Auth Service API** : http://localhost:5003
-
-### Arrêt des Services
-
-```powershell
-.\stop-services.ps1
-```
 
 ## Architecture Technique
 
 - **Frontend** : Blazor WebAssembly (.NET 9)
 - **Backend** : ASP.NET Core Web API (.NET 9)
 - **Communication** : HTTP/REST via API Gateway
-- **Base de données** : Entity Framework Core In-Memory (pour l'instant ?)
-- **Authentification** : Keycloak (à intégrer)
-- **Conteneurisation** : Docker (à implémenter)
+- **Base de données** : Entity Framework Core In-Memory
+- **Authentification** : Keycloak
+- **Conteneurisation** : Docker Compose
 ## Tests Unitaires
 
 BlazorGameQuest utilise **BUnit** et **xUnit** pour tester les composants Blazor
@@ -164,31 +172,11 @@ Depuis la racine du projet :
 dotnet restore
 ```
 
-### Configuration de la base de données
+### Swagger
 
-L'application utilise maintenant une base de données **en mémoire** (InMemory) qui ne nécessite aucune configuration. 
-Les données sont automatiquement créées au démarrage de l'application et perdues à l'arrêt.
+Swagger est disponible à cette url : http://localhost:5001/swagger
 
-Aucune installation de PostgreSQL ou configuration de chaîne de connexion n'est requise.
-
-### Application des migrations
-
-**Les migrations ne sont plus nécessaires** avec la base de données en mémoire. 
-Les tables sont automatiquement créées au démarrage de l'application selon les modèles définis.
-
-Si vous souhaitez revenir à une base persistante plus tard, vous devrez :
-1. Réinstaller les dépendances PostgreSQL
-2. Recréer les migrations avec `dotnet ef migrations add`
-
-### Lancement de l’API
-
-```bash
-cd ApiGateway
-dotnet run
-```
-
-Ouvrir ensuite Swagger à l’adresse :
-[http://localhost:5001/swagger]
+Tous les endpoints y sont listés
 
 ### Tests des endpoints
 
@@ -198,15 +186,6 @@ Dans Swagger :
 * **POST /api/rooms** → ajouter des salles
 * **GET /api/dungeons** et **GET /api/rooms** → vérifier les données enregistrées
 
-### Vérification dans pgAdmin
-
-Dans la base **gamequest** :
-
-```sql
-SELECT * FROM "Dungeons";
-SELECT * FROM "Rooms";
-SELECT * FROM "Traps";
-```
 ## Contributeurs
 
 - Yassine LAHMAR CHERIF
