@@ -1,6 +1,8 @@
 @page "/player/dashboard"
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
 @using SharedModels.Models
+@attribute [Authorize]
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject BlazorGame.Client.Services.ScoresService ScoresService
 

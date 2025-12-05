@@ -1,6 +1,8 @@
 @page "/auth/profile"
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
+@attribute [Authorize]
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Mon Profil - BlazorGameQuest</PageTitle>
@@ -14,7 +16,7 @@
                 <div class="row">
                     <div class="col-md-12 text-white">
                         <div class="mb-3">
-                            <label class="text-muted">Nom d'utilisateur</label>
+                            <label class="text-white">Nom d'utilisateur</label>
                             <div class="fs-4 fw-bold">@context.User.Identity?.Name</div>
                         </div>
                         

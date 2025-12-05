@@ -1,4 +1,6 @@
 @page "/game/room/{RoomId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
 <PageTitle>Salle @RoomId - BlazorGameQuest</PageTitle>
 

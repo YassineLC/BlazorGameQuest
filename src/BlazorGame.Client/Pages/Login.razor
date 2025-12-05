@@ -7,59 +7,61 @@
 
 <PageTitle>Connexion - BlazorGameQuest</PageTitle>
 
-<div class="auth-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
-                <div class="auth-card">
-                    <div class="text-center mb-4">
-                        <h2>Connexion</h2>
-                        <p>Connectez-vous pour commencer votre aventure</p>
-                    </div>
-
-                    <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary class="text-danger" />
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Nom d'utilisateur</label>
-                            <InputText id="email" class="form-control" @bind-Value="loginModel.Email" placeholder="Nom d'utilisateur" />
-                            <ValidationMessage For="@(() => loginModel.Email)" />
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="auth-card auth-card-large">
+                        <div class="text-center mb-4">
+                            <h2>Connexion</h2>
+                            <p>Connectez-vous pour commencer votre aventure</p>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Mot de passe</label>
-                            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
-                            <ValidationMessage For="@(() => loginModel.Password)" />
-                        </div>
+                        <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="text-danger" />
 
-                        <div class="mb-3 form-check">
-                            <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="loginModel.RememberMe" />
-                            <label class="form-check-label" for="rememberMe">
-                                Se souvenir de moi
-                            </label>
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            <div class="alert alert-danger" role="alert">
-                                @errorMessage
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Nom d'utilisateur</label>
+                                <InputText id="email" class="form-control" @bind-Value="loginModel.Email" placeholder="Nom d'utilisateur" />
+                                <ValidationMessage For="@(() => loginModel.Email)" />
                             </div>
-                        }
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary" disabled="@isLoading">
-                                @if (isLoading)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2"></span>
-                                }
-                                Se Connecter
-                            </button>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+                                <ValidationMessage For="@(() => loginModel.Password)" />
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="loginModel.RememberMe" />
+                                <label class="form-check-label" for="rememberMe">
+                                    Se souvenir de moi
+                                </label>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @errorMessage
+                                </div>
+                            }
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                                    @if (isLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    Se Connecter
+                                </button>
+                            </div>
+                        </EditForm>
+
+                        <div class="text-center mt-3">
+                            <a href="/">← Retour à l'accueil</a>
                         </div>
-                    </EditForm>
-
-                    <div class="text-center mt-3">
-                        <a href="/">← Retour à l'accueil</a>
                     </div>
                 </div>
             </div>
