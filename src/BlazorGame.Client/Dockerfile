@@ -1,23 +1,17 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/AuthenticationServices/AuthenticationServices.csproj", "src/AuthenticationServices/"]
+COPY ["src/BlazorGame.Client/BlazorGame.Client.csproj", "src/BlazorGame.Client/"]
 COPY ["src/SharedModels/SharedModels.csproj", "src/SharedModels/"]
-RUN dotnet restore "src/AuthenticationServices/AuthenticationServices.csproj"
+RUN dotnet restore "src/BlazorGame.Client/BlazorGame.Client.csproj"
 COPY . .
-WORKDIR "/src/src/AuthenticationServices"
-RUN dotnet build "AuthenticationServices.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/src/BlazorGame.Client"
+RUN dotnet publish "BlazorGame.Client.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "AuthenticationServices.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "AuthenticationServices.dll"]
+FROM nginx:alpine AS final
+WORKDIR /usr/share/nginx/html
+COPY --from=build /app/publish/wwwroot .
+EXPOSE 8080
+# Adapter nginx à 8080
+RUN sed -i 's/listen\s\+80;/listen 8080;/g' /etc/nginx/conf.d/default.conf
+CMD ["nginx", "-g", "daemon off;"]

@@ -6,18 +6,18 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/ApiGateway/ApiGateway.csproj", "src/ApiGateway/"]
+COPY ["src/AuthenticationServices/AuthenticationServices.csproj", "src/AuthenticationServices/"]
 COPY ["src/SharedModels/SharedModels.csproj", "src/SharedModels/"]
-RUN dotnet restore "src/ApiGateway/ApiGateway.csproj"
+RUN dotnet restore "src/AuthenticationServices/AuthenticationServices.csproj"
 COPY . .
-WORKDIR "/src/src/ApiGateway"
-RUN dotnet build "ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/src/AuthenticationServices"
+RUN dotnet build "AuthenticationServices.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "AuthenticationServices.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ApiGateway.dll"]
+ENTRYPOINT ["dotnet", "AuthenticationServices.dll"]
