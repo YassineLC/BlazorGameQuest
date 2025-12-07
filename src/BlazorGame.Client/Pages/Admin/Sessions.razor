@@ -1,0 +1,101 @@
+@page "/admin/sessions"
+@using Microsoft.AspNetCore.Authorization
+@using SharedModels.Models.Admin
+@inject BlazorGame.Client.Services.Admin.IAdminApiClient AdminApiClient
+@attribute [Authorize(Roles = "admin,Admin")]
+
+<PageTitle>Sessions Admin - BlazorGameQuest</PageTitle>
+
+<section class="admin-shell admin-sessions container-fluid py-4">
+    <header class="admin-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="mb-2">Suivi des sessions</h1>
+            <p class="admin-subtitle">Gardez un œil sur la progression en temps réel de chaque aventurier.</p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour tableau de bord</a>
+    </header>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <span>Chargement des sessions...</span>
+        </div>
+    }
+    else if (sessions.Count == 0)
+    {
+        <div class="alert alert-info admin-alert">Aucune session enregistrée pour le moment.</div>
+    }
+    else
+    {
+        <div class="table-responsive admin-table-wrapper">
+            <table class="table table-striped table-hover card-medieval admin-table">
+                <thead>
+                    <tr>
+                        <th>Session</th>
+                        <th>Joueur</th>
+                        <th>Donjon</th>
+                        <th>Profondeur max</th>
+                        <th>Score final</th>
+                        <th>Statut</th>
+                        <th>Démarrée</th>
+                        <th>Terminée</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in sessions)
+                    {
+                        <tr>
+                            <td><code>@session.Id.ToString().Substring(0, 8)</code></td>
+                            <td class="fw-bold">@session.PlayerName</td>
+                            <td>@session.DungeonName</td>
+                            <td>@session.MaxDepthReached</td>
+                            <td class="admin-cell-highlight">@session.FinalScore</td>
+                            <td>
+                                @if (session.IsFinished)
+                                {
+                                    <span class="badge admin-badge-success">Terminée</span>
+                                }
+                                else
+                                {
+                                    <span class="badge admin-badge-warning">En cours</span>
+                                }
+                            </td>
+                            <td>@session.StartedAt.ToLocalTime().ToString("g")</td>
+                            <td>@session.FinishedAt.ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@code {
+    private readonly List<SessionAdminDto> sessions = new();
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSessionsAsync();
+    }
+
+    private async Task LoadSessionsAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var data = await AdminApiClient.GetSessionsAsync();
+            sessions.Clear();
+            sessions.AddRange(data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur sessions: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

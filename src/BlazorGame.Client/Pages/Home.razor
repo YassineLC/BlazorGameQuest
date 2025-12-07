@@ -1,5 +1,6 @@
 ﻿@page "/"
 @page "/home"
+@using Microsoft.AspNetCore.Components.Authorization
 
 <PageTitle>BlazorGameQuest - Accueil</PageTitle>
 
@@ -16,28 +17,25 @@
                     Faites des choix stratégiques pour survivre et gagner des points !
                 </p>
                 
-                @if (isAuthenticated)
-                {
-                    <div class="d-grid gap-2 d-md-block">
-                        <a href="/player/dashboard" class="btn btn-primary btn-lg me-2">
-                            Mon Tableau de Bord
-                        </a>
-                        <a href="/game/new-adventure" class="btn btn-success btn-lg">
-                            Nouvelle Aventure
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="d-grid gap-2 d-md-block">
-                        <a href="/auth/login" class="btn btn-primary btn-lg me-2">
-                            Se connecter
-                        </a>
-                        <a href="/auth/register" class="btn btn-primary btn-lg me-2">
-                            S'inscrire
-                        </a>
-                    </div>
-                }
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="d-grid gap-2 d-md-block">
+                            <a href="/player/dashboard" class="btn btn-primary btn-lg me-2">
+                                Mon Tableau de Bord
+                            </a>
+                            <a href="/game/new-adventure" class="btn btn-success btn-lg">
+                                Nouvelle Aventure
+                            </a>
+                        </div>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="d-grid gap-2 d-md-block">
+                            <a href="/auth/login" class="btn btn-primary btn-lg me-2">
+                                Se connecter
+                            </a>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
             </div>
         </div>
     </div>
@@ -88,11 +86,5 @@
 </div>
 
 @code {
-    private bool isAuthenticated = false; // TODO: Implémenter la vérification d'auth
-
-    protected override void OnInitialized()
-    {
-        // TODO: Vérifier l'état d'authentification
-        // isAuthenticated = AuthService.IsAuthenticated();
-    }
+    // Pas de code nécessaire, AuthorizeView gère tout
 }

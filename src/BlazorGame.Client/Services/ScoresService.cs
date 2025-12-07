@@ -15,4 +15,10 @@ public class ScoresService
         var list = await _http.GetFromJsonAsync<List<Score>>(_api);
         return list ?? new List<Score>();
     }
+
+    public async Task<List<Score>> GetByPlayerIdAsync(Guid playerId)
+    {
+        var list = await _http.GetFromJsonAsync<List<Score>>($"{_api}/player/{playerId}");
+        return list ?? new List<Score>();
+    }
 }

@@ -1,0 +1,16 @@
+@inject NavigationManager NavigationManager
+@inject BlazorGame.Client.Services.ToastService ToastService
+
+@code {
+    protected override void OnInitialized()
+    {
+        ToastService.Show("Vous devez être connecté pour accéder à cette page.", "Authentification requise", BlazorGame.Client.Services.ToastLevel.Warning);
+
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        var query = string.IsNullOrWhiteSpace(relativePath)
+            ? string.Empty
+            : $"?returnUrl={Uri.EscapeDataString("/" + relativePath)}";
+
+        NavigationManager.NavigateTo($"/auth/login{query}");
+    }
+}

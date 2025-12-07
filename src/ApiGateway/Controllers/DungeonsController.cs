@@ -1,12 +1,16 @@
 using ApiGateway.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedModels.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiGateway.Controllers
 {
   /// <summary>CRUD pour les Donjons avec génération procédurale</summary>
-  [ApiController, Route("api/[controller]")]
+  [ApiController]
+  [Route("api/[controller]")]
+  [Produces("application/json")]
   public class DungeonsController : ControllerBase
   {
     private readonly AppDbContext _db;
@@ -20,15 +24,36 @@ namespace ApiGateway.Controllers
 
     /// <summary>Liste les donjons (sans les salles pour alléger)</summary>
     [HttpGet]
+    [SwaggerOperation(
+      Summary = "Liste les donjons",
+      Description = "Retourne l'ensemble des donjons disponibles sans leurs salles pour alléger la charge.",
+      OperationId = "Dungeons_GetAll")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Dungeon>))]
     public Task<List<Dungeon>> GetAll() => _db.Dungeons.AsNoTracking().ToListAsync();
 
     /// <summary>Récupère un donjon avec toutes ses salles</summary>
     [HttpGet("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Récupère un donjon",
+      Description = "Renvoie un donjon ainsi que ses salles.",
+      OperationId = "Dungeons_GetById")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dungeon))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Dungeon>> GetById(Guid id)
-        => await _db.Dungeons.Include(d => d.Rooms).FirstOrDefaultAsync(d => d.Id == id) is { } d ? Ok(d) : NotFound();
+        => await _db.Dungeons
+            .AsNoTracking()
+            .Include(d => d.Rooms)
+            .FirstOrDefaultAsync(d => d.Id == id) is { } d ? Ok(d) : NotFound();
 
     /// <summary>Crée un nouveau donjon avec génération procédurale des salles</summary>
     [HttpPost]
+    [SwaggerOperation(
+      Summary = "Crée un donjon",
+      Description = "Génère un nouveau donjon et ses salles en s'appuyant sur le service de génération.",
+      OperationId = "Dungeons_Create")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Dungeon))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Dungeon>> Create(CreateDungeonRequest req)
     {
       if (string.IsNullOrWhiteSpace(req.Name)) return BadRequest("Name requis.");
@@ -82,6 +107,13 @@ namespace ApiGateway.Controllers
     }
 
     [HttpPut("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Met à jour un donjon",
+      Description = "Actualise les métadonnées d'un donjon existant.",
+      OperationId = "Dungeons_Update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, Dungeon input)
     {
       if (id != input.Id) return BadRequest();
@@ -91,6 +123,12 @@ namespace ApiGateway.Controllers
     }
 
     [HttpDelete("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Supprime un donjon",
+      Description = "Efface le donjon correspondant à l'identifiant fourni.",
+      OperationId = "Dungeons_Delete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
       var d = await _db.Dungeons.FindAsync(id); if (d is null) return NotFound();

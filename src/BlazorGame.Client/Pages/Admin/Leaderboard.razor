@@ -1,0 +1,141 @@
+@page "/admin/leaderboard"
+@using Microsoft.AspNetCore.Authorization
+@using SharedModels.Models.Admin
+@inject BlazorGame.Client.Services.Admin.IAdminApiClient AdminApiClient
+@attribute [Authorize(Roles = "admin,Admin")]
+
+<PageTitle>Classement Admin - BlazorGameQuest</PageTitle>
+
+<section class="admin-shell admin-leaderboard container-fluid py-4">
+    <header class="admin-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="mb-2">Classements d'élite</h1>
+            <p class="admin-subtitle">Comparez les héros selon différentes fenêtres temporelles.</p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour tableau de bord</a>
+    </header>
+
+    <div class="row g-4 mb-4 admin-stats-grid">
+        <div class="col-md-4">
+            <article class="card card-medieval admin-stat-card">
+                <h5>Top 10 global</h5>
+                <p class="mb-0">Classement cumulé de tous les temps.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card card-medieval admin-stat-card">
+                <h5>Hall hebdomadaire</h5>
+                <p class="mb-0">Performances sur les 7 derniers jours.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card card-medieval admin-stat-card">
+                <h5>Défi quotidien</h5>
+                <p class="mb-0">État du classement sur 24&nbsp;h.</p>
+            </article>
+        </div>
+    </div>
+
+    <div class="admin-tabstrip mb-4">
+        <button class="admin-tab @(activeTab == "global" ? "active" : string.Empty)" @onclick='() => ChangeScope("global")'>Global</button>
+        <button class="admin-tab @(activeTab == "weekly" ? "active" : string.Empty)" @onclick='() => ChangeScope("weekly")'>Hebdomadaire</button>
+        <button class="admin-tab @(activeTab == "daily" ? "active" : string.Empty)" @onclick='() => ChangeScope("daily")'>Quotidien</button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <span>Chargement du classement...</span>
+        </div>
+    }
+    else if (entries.Count == 0)
+    {
+        <div class="alert alert-info admin-alert">Aucune donnée disponible pour ce classement.</div>
+    }
+    else
+    {
+        <div class="table-responsive admin-table-wrapper">
+            <table class="table table-striped table-hover card-medieval admin-table">
+                <thead>
+                    <tr>
+                        <th>Rang</th>
+                        <th>Joueur</th>
+                        <th>Score</th>
+                        <th>Sessions</th>
+                        <th>Profondeur max</th>
+                        <th>Dernière activité</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var (entry, index) in entries.Select((entry, idx) => (entry, idx)))
+                    {
+                        <tr>
+                            <td>
+                                <span class="admin-rank">@(index + 1)</span>
+                                @if (index < 3)
+                                {
+                                    <span class="badge admin-badge-tier-@index">@GetTierLabel(index)</span>
+                                }
+                            </td>
+                            <td class="fw-bold">@entry.PlayerName</td>
+                            <td class="admin-cell-highlight">@entry.TotalScore</td>
+                            <td>@entry.SessionCount</td>
+                            <td>@entry.MaxDepthReached</td>
+                            <td>@entry.LastUpdate.ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@code {
+    private readonly List<LeaderboardEntryDto> entries = new();
+    private string activeTab = "global";
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLeaderboardAsync();
+    }
+
+    private async Task LoadLeaderboardAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var data = await AdminApiClient.GetLeaderboardAsync(activeTab);
+            entries.Clear();
+            entries.AddRange(data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur leaderboard: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ChangeScope(string scope)
+    {
+        if (activeTab == scope)
+        {
+            return;
+        }
+
+        activeTab = scope;
+        await LoadLeaderboardAsync();
+    }
+
+    private static string GetTierLabel(int index) => index switch
+    {
+        0 => "Gold",
+        1 => "Silver",
+        2 => "Bronze",
+        _ => string.Empty
+    };
+}

@@ -277,6 +277,49 @@
     display: none;
 }
 
+.admin-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin: 1.5rem 1.25rem 0 1.25rem;
+}
+
+.admin-quick-actions ::deep a.nav-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 148px;
+    border-radius: 999px;
+    padding: 0.6rem 1.15rem;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.55px;
+    color: #1a1a1a;
+    text-decoration: none;
+    background: linear-gradient(135deg, #f1d08a 0%, #c9aa71 100%);
+    box-shadow: 0 4px 12px rgba(201, 170, 113, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-quick-actions ::deep a.nav-action-button i {
+    width: 18px;
+    height: 18px;
+    stroke: #1a1a1a;
+    stroke-width: 2.2px;
+}
+
+.admin-quick-actions ::deep a.nav-action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(201, 170, 113, 0.45);
+}
+
+.admin-quick-actions ::deep a.nav-action-button.active {
+    box-shadow: 0 6px 18px rgba(201, 170, 113, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (min-width: 641px) {
     .navbar-toggler {
@@ -328,6 +371,16 @@
         padding: 0 16px;
         gap: 10px;
         border-radius: 8px;
+    }
+
+    .admin-quick-actions {
+        justify-content: center;
+        margin: 1.25rem 1rem 0 1rem;
+    }
+
+    .admin-quick-actions ::deep a.nav-action-button {
+        width: 100%;
+        min-width: 0;
     }
     
     .nav-item ::deep a i,
@@ -397,6 +450,11 @@
         height: 3.0rem;
         font-size: 12px;
         padding: 0 14px;
+    }
+
+    .admin-quick-actions {
+        margin: 1.1rem 0.75rem 0 0.75rem;
+        gap: 0.5rem;
     }
     
     .navbar-brand {

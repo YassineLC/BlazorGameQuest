@@ -1,0 +1,95 @@
+@page "/admin/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@using SharedModels.Models.Admin
+@inject BlazorGame.Client.Services.Admin.IAdminApiClient AdminApiClient
+@attribute [Authorize(Roles = "admin,Admin")]
+
+<PageTitle>Tableau de Bord Admin - BlazorGameQuest</PageTitle>
+
+<section class="admin-shell admin-dashboard container-fluid py-4">
+    <header class="admin-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="mb-2">Tableau de bord administrateur</h1>
+            <p class="admin-subtitle">Pilotez l'ensemble du royaume : joueurs, donjons et performances.</p>
+        </div>
+        <span class="admin-meta">Dernière mise à jour&nbsp;: @(dashboardStats?.LastUpdated.ToLocalTime().ToString("g") ?? "N/A")</span>
+    </header>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <span>Chargement des statistiques...</span>
+        </div>
+    }
+    else if (dashboardStats is null)
+    {
+        <div class="alert alert-danger admin-alert">Impossible de récupérer les statistiques du tableau de bord.</div>
+    }
+    else
+    {
+        <div class="row g-4 admin-stats-grid">
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Joueurs actifs</h5>
+                    <p class="admin-stat-value">@dashboardStats.TotalPlayers</p>
+                    <a href="/admin/players" class="btn btn-primary btn-sm">Gérer</a>
+                </article>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Parties jouées</h5>
+                    <p class="admin-stat-value">@dashboardStats.TotalSessions</p>
+                    <a href="/admin/sessions" class="btn btn-primary btn-sm">Consulter</a>
+                </article>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Score moyen</h5>
+                    <p class="admin-stat-value">@dashboardStats.AverageScore</p>
+                    <a href="/admin/sessions" class="btn btn-primary btn-sm">Analyser</a>
+                </article>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Donjons créés</h5>
+                    <p class="admin-stat-value">@dashboardStats.TotalDungeons</p>
+                    <a href="/admin/dungeons" class="btn btn-primary btn-sm">Explorer</a>
+                </article>
+            </div>
+        </div>
+
+        <section class="admin-quick-links mt-5">
+            <h3 class="mb-3">Navigation rapide</h3>
+            <div class="admin-chip-group">
+                <a class="admin-chip" href="/admin/players"><i data-feather="users"></i><span>Gestion des joueurs</span></a>
+                <a class="admin-chip" href="/admin/sessions"><i data-feather="compass"></i><span>Sessions en cours</span></a>
+                <a class="admin-chip" href="/admin/dungeons"><i data-feather="map"></i><span>Donjons</span></a>
+                <a class="admin-chip" href="/admin/leaderboard"><i data-feather="award"></i><span>Leaderboard</span></a>
+                <a class="admin-chip" href="/admin/export"><i data-feather="download"></i><span>Exports rapides</span></a>
+            </div>
+        </section>
+    }
+</section>
+
+@code {
+    private DashboardStatsDto? dashboardStats;
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            dashboardStats = await AdminApiClient.GetDashboardStatsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur dashboard: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -2,9 +2,39 @@
 
 Un jeu d'aventure textuel développé avec Blazor WebAssembly
 
-> ** Note importante** : L'application utilise maintenant une **base de données en mémoire (InMemory)** 
-> au lieu de PostgreSQL pour simplifier l'installation et les tests. 
-> Les données sont créées automatiquement au démarrage et perdues à l'arrêt de l'application.
+## Version actuelle : V5 en cours
+
+### Statut V4 (Tableau de bord Admin) - COMPLÉTÉ
+- Scaffolding de 7 pages admin (Dashboard, Players, Scores, Sessions, Leaderboard, Dungeons, Export)
+- AdminController avec 10 endpoints API complets
+  - Dashboard stats (joueurs, sessions, scores, donjons, moyenne)
+  - Gestion joueurs (liste, activation/désactivation)
+  - Scores avec statistiques (moyenne, max, total)
+  - Sessions listing
+  - Leaderboard global
+  - Donjons avec statistiques
+  - Export endpoints (joueurs, scores, sessions, donjons)
+- Intégration API complète dans toutes les pages Blazor
+- AdminControllerTests avec 13 tests unitaires exhaustifs
+- E2E integration tests pour les pages admin
+- Build: 0 erreurs, 88 tests passent
+
+### Statut V5 (Authentification Keycloak) - COMPLÉTÉ
+- Keycloak configuré avec realm BlazorGameQuest
+- CustomAuthStateProvider avec support OIDC et JWT
+- Pages Login/Logout implémentées
+- Protection des endpoints admin avec [Authorize]
+- Setup Keycloak avec comptes test:
+  - **user1** / **1234** (Player)
+  - **user2** / **1234** (Player)
+- Docker Compose avec services:
+  - Postgres pour données
+  - Keycloak pour authentification
+  - API Gateway
+  - Client Blazor
+- Scripts de setup automatique
+
+### Prérequis
 
 Depuis le répertoire racine du projet, on exécute :
 
@@ -24,7 +54,8 @@ dotnet test
 ```bash
 cd src/ApiGateway
 dotnet run
-```vers de style Metroidvania.
+```
+vers de style Metroidvania.
 
 ![Build Status](https://github.com/YassineLC/BlazorGameQuest/workflows/Build/badge.svg)
 ![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
@@ -52,10 +83,7 @@ dotnet run
 - **BlazorGame.Client** - Interface utilisateur Blazor
 - **ApiGateway** - Point d'entrée unique pour toutes les API
 - **GameService** - Logique de jeu, génération de donjons, calcul des scores
-- **AuthenticationServices** (Port 5003) - Gestion de l'authentification (sera intégré avec Keycloak)
-
-### Projets Partagés
-
+- **AuthenticationServices** - Gestion de l'authentification (sera intégré avec Keycloak)
 - **SharedModels** - Modèles de données partagés entre tous les services
 
 ## Structure du Projet
@@ -63,16 +91,18 @@ dotnet run
 ```
 BlazorGameQuest/
 ├── src/
-│   ├── BlazorGame.Client/       # Interface utilisateur Blazor (http://localhost:5000)
-│   ├── ApiGateway/              # API Gateway (http://localhost:5001)
-│   ├── GameService/             # Service de jeu (http://localhost:5002)
-│   ├── AuthenticationServices/  # Service d'authentification (http://localhost:5003)
-│   └── SharedModels/            # Modèles partagés
+│   ├── ApiGateway/               # API Gateway (http://localhost:5001)
+│   ├── AuthenticationServices/   # Service d'authentification (http://localhost:5003)
+│   ├── BlazorGame.Client/        # Interface Blazor (http://localhost:5000)
+│   ├── GameService/              # Service de jeu (http://localhost:5002)
+│   └── SharedModels/             # Modèles partagés
 ├── tests/
-│   └── BlazorGame.Client.Tests/ # Tests unitaires
-├── start-services.ps1           # Script de démarrage des services (en arrière-plan)
-├── stop-services.ps1            # Script d'arrêt des services (avec confirmation)
-└── BlazorGameQuest.sln          # Solution principale
+│   ├── ApiGateway.Tests/
+│   ├── BlazorGame.Client.Tests/
+│   └── SharedModels.Tests/
+├── docker-compose.yml            # Orchestration Docker
+├── .dockerignore                 # Ignore Docker
+└── appsettings.Global.json       # Configuration globale
 ```
 
 ## Démarrage Rapide
@@ -80,115 +110,98 @@ BlazorGameQuest/
 ### Prérequis
 
 - .NET 9.0 SDK
-- PowerShell (pour les scripts de démarrage)
+- Docker Desktop
 
-### Configuration
+### Conteneurisation (Docker)
 
-Avant de lancer l'application, créez un fichier `.env` à la racine du projet en vous basant sur le fichier `.env.example` fourni :
+L'application est containerisée avec Docker Compose. La base de données utilisée est **InMemory** (aucun service de base de données externe requis).
+
+#### Démarrer les services
 
 ```powershell
-# Copiez le fichier exemple
-copy .env.example .env
+# Depuis la racine du projet
+docker-compose up --build -d
 ```
 
-Le fichier `.env` n'est plus nécessaire car l'application utilise maintenant une base de données en mémoire. Vous pouvez supprimer le fichier `.env` s'il existe.
+#### Vérifier l'état et les logs
 
-### Lancement de l'Application
+```powershell
+docker-compose ps
+docker-compose logs -f
+```
 
-1. **Méthode Automatique (Recommandée)**
+#### Arrêter les services
+
+```powershell
+docker-compose down
+```
+
+#### Redémarrer un service spécifique
+
+```powershell
+# Exemple : API Gateway
+docker-compose up --build --force-recreate api-gateway -d
+```
+
+## Importer la configuration Keycloak
+
+Le dossier `keycloak-export` contient le fichier `blazorgamequest-realm.json` exporté depuis l'environnement de référence. Voici comment l'importer dans un nouveau Keycloak lancé via `docker-compose` :
+
+1. **Démarrer Keycloak**
    ```powershell
-   # Depuis le répertoire racine du projet
-   .\start-services.ps1
+   docker-compose up -d keycloak postgres-keycloak
+   ```
+2. **Copier le fichier d'export dans le conteneur**
+   ```powershell
+   docker cp keycloak-export/blazorgamequest-realm.json keycloak:/opt/keycloak/data/import/
+   ```
+3. **Importer le realm** (le nom interne du realm est `blazorgamequest`)
+   ```powershell
+   docker exec -it keycloak /opt/keycloak/bin/kc.sh import `
+       --dir /opt/keycloak/data/import `
+       --realm blazorgamequest
+   ```
+4. **Redémarrer Keycloak pour prendre en compte l'import**
+   ```powershell
+   docker-compose restart keycloak
    ```
 
-2. **Méthode Manuelle**
-   ```powershell
-   # Terminal 1 - AuthenticationServices
-   cd src/AuthenticationServices
-   dotnet run
-   
-   # Terminal 2 - GameService
-   cd src/GameService
-   dotnet run
-   
-   # Terminal 3 - ApiGateway
-   cd src/ApiGateway
-   dotnet run
-   
-   # Terminal 4 - Client Blazor
-   cd src/BlazorGame.Client
-   dotnet run
-   ```
+Après redémarrage, connectez-vous à l'admin console sur http://localhost:8080/ avec `admin` / `admin`, le realm `blazorgamequest` est prêt à l'emploi.
 
 ### URLs d'Accès
 
 - **Jeu (Interface Joueur)** : http://localhost:5000
-- **Administration** : http://localhost:5000/admin
 - **API Gateway** : http://localhost:5001
 - **Game Service API** : http://localhost:5002
 - **Auth Service API** : http://localhost:5003
-
-### Arrêt des Services
-
-```powershell
-.\stop-services.ps1
-```
 
 ## Architecture Technique
 
 - **Frontend** : Blazor WebAssembly (.NET 9)
 - **Backend** : ASP.NET Core Web API (.NET 9)
 - **Communication** : HTTP/REST via API Gateway
-- **Base de données** : Entity Framework Core In-Memory (pour l'instant ?)
-- **Authentification** : Keycloak (à intégrer)
-- **Conteneurisation** : Docker (à implémenter)
+- **Base de données** : Entity Framework Core In-Memory
+- **Authentification** : Keycloak
+- **Conteneurisation** : Docker Compose
 ## Tests Unitaires
 
 BlazorGameQuest utilise **BUnit** et **xUnit** pour tester les composants Blazor
 
-### Lancer tous les tests
-
-Depuis le répertoire racine du projet, on exécute :
+### Tests
 
 ```powershell
-cd BlazorGame.Client.Tests
-dotnet test
-
-## Mise en place locale et tests de la version 2
-
-### Installation des dépendances
-
-Depuis la racine du projet :
-
-```bash
+# Depuis la racine
 dotnet restore
+
+cd tests/BlazorGame.Client.Tests
+dotnet test
 ```
 
-### Configuration de la base de données
+### Swagger
 
-L'application utilise maintenant une base de données **en mémoire** (InMemory) qui ne nécessite aucune configuration. 
-Les données sont automatiquement créées au démarrage de l'application et perdues à l'arrêt.
+Swagger est disponible à cette url : http://localhost:5001/swagger
 
-Aucune installation de PostgreSQL ou configuration de chaîne de connexion n'est requise.
-
-### Application des migrations
-
-**Les migrations ne sont plus nécessaires** avec la base de données en mémoire. 
-Les tables sont automatiquement créées au démarrage de l'application selon les modèles définis.
-
-Si vous souhaitez revenir à une base persistante plus tard, vous devrez :
-1. Réinstaller les dépendances PostgreSQL
-2. Recréer les migrations avec `dotnet ef migrations add`
-
-### Lancement de l’API
-
-```bash
-cd ApiGateway
-dotnet run
-```
-
-Ouvrir ensuite Swagger à l’adresse :
-[http://localhost:5001/swagger]
+Tous les endpoints y sont listés
 
 ### Tests des endpoints
 
@@ -198,15 +211,6 @@ Dans Swagger :
 * **POST /api/rooms** → ajouter des salles
 * **GET /api/dungeons** et **GET /api/rooms** → vérifier les données enregistrées
 
-### Vérification dans pgAdmin
-
-Dans la base **gamequest** :
-
-```sql
-SELECT * FROM "Dungeons";
-SELECT * FROM "Rooms";
-SELECT * FROM "Traps";
-```
 ## Contributeurs
 
 - Yassine LAHMAR CHERIF

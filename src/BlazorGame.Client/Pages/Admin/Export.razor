@@ -1,0 +1,95 @@
+@page "/admin/export"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
+@inject BlazorGame.Client.Services.Admin.IAdminApiClient AdminApiClient
+@inject IJSRuntime Js
+@attribute [Authorize(Roles = "admin,Admin")]
+
+<PageTitle>Export Admin - BlazorGameQuest</PageTitle>
+
+<section class="admin-shell admin-export container-fluid py-4">
+    <header class="admin-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="mb-2">Exports</h1>
+            <p class="admin-subtitle">Générez les instantanés dont vous avez besoin pour analyser le leaderboard.</p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour tableau de bord</a>
+    </header>
+
+    <div class="row g-4">
+        @foreach (var export in exports)
+        {
+            <div class="col-md-6">
+                <article class="card card-medieval admin-export-card">
+                    <h5 class="mb-2">@export.Title</h5>
+                    <p class="mb-3">@export.Description</p>
+                    <button class="btn btn-primary" disabled="@export.IsRunning" @onclick="() => TriggerExportAsync(export)">
+                        @if (export.IsRunning)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <span>@export.ButtonLabel</span>
+                    </button>
+                </article>
+            </div>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(statusMessage))
+    {
+        <div class="alert alert-info admin-alert mt-4">@statusMessage</div>
+    }
+</section>
+
+@code {
+    private readonly List<ExportDescriptor> exports = new()
+    {
+        new("Exporter les joueurs", "Télécharger la liste complète des aventuriers au format JSON.", "api/admin/export/players", "Exporter les joueurs"),
+        new("Exporter les parties", "Sauvegardez tous les runs et leurs métadonnées.", "api/admin/export/sessions", "Exporter les parties"),
+        new("Exporter les donjons", "Archivez la configuration actuelle des donjons.", "api/admin/export/dungeons", "Exporter les donjons")
+    };
+
+    private string? statusMessage;
+
+    private async Task TriggerExportAsync(ExportDescriptor export)
+    {
+        if (export.IsRunning)
+        {
+            return;
+        }
+
+        try
+        {
+            export.IsRunning = true;
+            var file = await AdminApiClient.DownloadExportAsync(export.Endpoint);
+            var base64 = System.Convert.ToBase64String(file.Content);
+            await Js.InvokeVoidAsync("DownloadHelpers.saveBase64File", file.FileName, file.ContentType, base64);
+            statusMessage = $"✓ Export enregistré : {file.FileName}";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"✗ Erreur lors de l'export {export.Title.ToLower()}: {ex.Message}";
+        }
+        finally
+        {
+            export.IsRunning = false;
+        }
+    }
+
+    private sealed class ExportDescriptor
+    {
+        public ExportDescriptor(string title, string description, string endpoint, string buttonLabel)
+        {
+            Title = title;
+            Description = description;
+            Endpoint = endpoint;
+            ButtonLabel = buttonLabel;
+        }
+
+        public string Title { get; }
+        public string Description { get; }
+        public string Endpoint { get; }
+        public string ButtonLabel { get; }
+        public bool IsRunning { get; set; }
+    }
+}

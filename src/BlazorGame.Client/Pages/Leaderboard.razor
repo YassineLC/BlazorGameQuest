@@ -1,0 +1,199 @@
+@page "/leaderboard"
+@using BlazorGame.Client.Services
+@using SharedModels.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ScoresService ScoresService
+
+<PageTitle>Classements - BlazorGameQuest</PageTitle>
+
+<div class="dashboard-container">
+    <section class="dashboard-header">
+        <div class="hero-welcome">
+            <div class="hero-content">
+                <h1 class="hero-title">Tableau des Scores</h1>
+                <p class="hero-subtitle">Les plus grands aventuriers du royaume</p>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">@totalPlayers</div>
+                    <div class="stat-label">Aventuriers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">@highestScore</div>
+                    <div class="stat-label">Meilleur score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">@totalGames</div>
+                    <div class="stat-label">Expéditions</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-content">
+        <div class="content-grid single-column">
+            <div class="dashboard-card leaderboard-card">
+                <div class="card-header">
+                    <h3>
+                        <i data-feather="users"></i>
+                        Classement général
+                    </h3>
+                    <div class="results-count">
+                        @(lastUpdated.HasValue ? $"Mise à jour {lastUpdated.Value.ToLocalTime():dd/MM/yyyy HH:mm}" : "En attente des premiers exploits")
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (isLoading)
+                    {
+                        <div class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <p>Chargement du classement...</p>
+                        </div>
+                    }
+                    else if (!leaderboardEntries.Any())
+                    {
+                        <div class="empty-state">
+                            <i data-feather="star"></i>
+                            <h4>Hall vide</h4>
+                            <p>Soyez le premier à écrire votre légende !</p>
+                            <a class="btn btn-primary" href="/game/new-adventure">
+                                Commencer une aventure
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="leaderboard-table-wrapper">
+                            <table class="table leaderboard-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="text-center">#</th>
+                                        <th scope="col">Aventurier</th>
+                                        <th scope="col" class="text-center">Parties jouées</th>
+                                        <th scope="col" class="text-end">Score total</th>
+                                        <th scope="col" class="text-center">Dernière activité</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var (entry, index) in leaderboardEntries.Select((e, i) => (e, i + 1)))
+                                    {
+                                        <tr class="leaderboard-row @(index <= 3 ? "leaderboard-row-top" : string.Empty)">
+                                            <td class="text-center align-middle">
+                                                @if (index == 1)
+                                                {
+                                                    <span class="leaderboard-medal gold">🥇</span>
+                                                }
+                                                else if (index == 2)
+                                                {
+                                                    <span class="leaderboard-medal silver">🥈</span>
+                                                }
+                                                else if (index == 3)
+                                                {
+                                                    <span class="leaderboard-medal bronze">🥉</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="leaderboard-rank">@index</span>
+                                                }
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="leaderboard-player">
+                                                    <div class="leaderboard-avatar">@GetInitials(entry.PlayerName)</div>
+                                                    <div class="leaderboard-player-info">
+                                                        <span class="leaderboard-player-name">@entry.PlayerName</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="leaderboard-games">@entry.GamesPlayed</span>
+                                            </td>
+                                            <td class="text-end align-middle">
+                                                <span class="leaderboard-score">@entry.TotalScore</span>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="leaderboard-date">@entry.LastActive.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@code {
+    private List<Score> scores = new();
+    private List<LeaderboardEntry> leaderboardEntries = new();
+    private bool isLoading = true;
+    private int totalPlayers;
+    private int totalGames;
+    private int highestScore;
+    private DateTime? lastUpdated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            scores = await ScoresService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors du chargement des scores : {ex.Message}");
+            scores = new List<Score>();
+        }
+        finally
+        {
+            BuildLeaderboard();
+            isLoading = false;
+        }
+    }
+
+    private void BuildLeaderboard()
+    {
+        if (scores == null || scores.Count == 0)
+        {
+            leaderboardEntries = new List<LeaderboardEntry>();
+            totalPlayers = 0;
+            totalGames = 0;
+            highestScore = 0;
+            lastUpdated = null;
+            return;
+        }
+
+        leaderboardEntries = scores
+            .GroupBy(s => s.Player?.Username ?? "Joueur inconnu")
+            .Select(g => new LeaderboardEntry
+            {
+                PlayerName = g.Key,
+                TotalScore = g.Sum(s => s.Value),
+                GamesPlayed = g.Count(),
+                LastActive = g.Max(s => s.AchievedAt)
+            })
+            .OrderByDescending(e => e.TotalScore)
+            .ToList();
+
+        totalPlayers = leaderboardEntries.Count;
+        totalGames = scores.Count;
+        highestScore = leaderboardEntries.FirstOrDefault()?.TotalScore ?? 0;
+        lastUpdated = leaderboardEntries.FirstOrDefault()?.LastActive;
+    }
+
+    private string GetInitials(string? name)
+    {
+        if (string.IsNullOrEmpty(name)) return "?";
+        return name.Substring(0, 1).ToUpperInvariant();
+    }
+
+    private sealed class LeaderboardEntry
+    {
+        public string PlayerName { get; set; } = string.Empty;
+        public int TotalScore { get; set; }
+        public int GamesPlayed { get; set; }
+        public DateTime LastActive { get; set; }
+    }
+}

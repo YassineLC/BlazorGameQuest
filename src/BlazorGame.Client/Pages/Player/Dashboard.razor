@@ -1,4 +1,10 @@
 @page "/player/dashboard"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using SharedModels.Models
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject BlazorGame.Client.Services.ScoresService ScoresService
 
 <PageTitle>Tableau de Bord - BlazorGameQuest</PageTitle>
 
@@ -7,11 +13,18 @@
     <section class="dashboard-header">
         <div class="hero-welcome">
             <div class="hero-content">
-                <h1 class="hero-title">Bienvenue, Noble @playerName</h1>
+                <AuthorizeView>
+                    <Authorized>
+                        <h1 class="hero-title">Bienvenue, @context.User.Identity?.Name</h1>
+                    </Authorized>
+                    <NotAuthorized>
+                        <h1 class="hero-title">Bienvenue, Noble Aventurier</h1>
+                    </NotAuthorized>
+                </AuthorizeView>
             </div>
             <div class="hero-stats">
                 <div class="stat-item">
-                    <div class="stat-value">@totalScore</div>
+                    <div class="stat-value">0</div>
                     <div class="stat-label">Points d'Honneur</div>
                 </div>
                 <div class="stat-item">
@@ -88,7 +101,7 @@
                     @if (recentGames.Any())
                     {
                         <div class="adventures-list">
-                            @foreach (var game in recentGames.Take(4))
+                            @foreach (var game in recentGames.Take(3))
                             {
                                 <div class="adventure-item">
                                     <div class="adventure-icon">
@@ -140,14 +153,13 @@
                     @if (topPlayers.Any())
                     {
                         <div class="champions-list">
-                            @for (int i = 0; i < Math.Min(topPlayers.Count, 5); i++)
+                            @for (int i = 0; i < Math.Min(topPlayers.Count, 3); i++)
                             {
-                                <div class="champion-item @(i < 3 ? "champion-podium" : "")">
+                                <div class="champion-item champion-podium">
                                     <div class="champion-rank">
                                         @if (i == 0) { <i data-feather="award"></i> }
                                         else if (i == 1) { <span class="rank-medal silver">2</span> }
                                         else if (i == 2) { <span class="rank-medal bronze">3</span> }
-                                        else { <span class="rank-number">@(i + 1)</span> }
                                     </div>
                                     <div class="champion-name">@topPlayers[i].Name</div>
                                     <div class="champion-score">@topPlayers[i].Score</div>
@@ -175,30 +187,60 @@
 </div>
 
 @code {
-    private string playerName = "Aventurier"; // TODO: Récupérer depuis l'auth
-    private int totalScore = 0; // À récupérer depuis l'API
-    private int gamesPlayed = 0; // À récupérer depuis l'API  
-    private int playerRank = 0; // À récupérer depuis l'API
+    private int gamesPlayed = 0;
+    private int playerRank = 0;
 
     private List<GameSummary> recentGames = new();
     private List<PlayerScore> topPlayers = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        LoadRecentGames();
-        LoadTopPlayers();
+        await LoadRecentGames();
+        await LoadTopPlayers();
     }
 
-    private void LoadRecentGames()
+    private async Task LoadRecentGames()
     {
-        // TODO: Appel API - await GameService.GetRecentGamesAsync()
-        recentGames = new List<GameSummary>(); // À venir
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var subClaim = user.FindFirst("sub")?.Value;
+            if (Guid.TryParse(subClaim, out var playerId))
+            {
+                var scores = await ScoresService.GetByPlayerIdAsync(playerId);
+                gamesPlayed = scores.Count;
+                
+                recentGames = scores
+                    .OrderByDescending(s => s.AchievedAt)
+                    .Take(3)
+                    .Select(s => new GameSummary
+                    {
+                        Date = s.AchievedAt,
+                        RoomsExplored = 5, // Donnée fixe pour l'instant
+                        Score = s.Value,
+                        IsCompleted = true // Considérer toutes les parties comme terminées
+                    })
+                    .ToList();
+            }
+        }
     }
 
-    private void LoadTopPlayers()
+    private async Task LoadTopPlayers()
     {
-        // TODO: Appel API - await LeaderboardService.GetTopPlayersAsync()
-        topPlayers = new List<PlayerScore>(); // À venir
+        var allScores = await ScoresService.GetAllAsync();
+        
+        topPlayers = allScores
+            .GroupBy(s => s.Player?.Username ?? "Joueur inconnu")
+            .Select(g => new PlayerScore
+            {
+                Name = g.Key,
+                Score = g.Sum(s => s.Value)
+            })
+            .OrderByDescending(p => p.Score)
+            .Take(3)
+            .ToList();
     }
 
     public class GameSummary

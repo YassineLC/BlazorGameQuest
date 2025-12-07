@@ -21,9 +21,6 @@ namespace BlazorGame.Client.Tests.Pages
       // Vérifie les boutons pour non connecté
       var loginButton = cut.Find("a.btn-primary[href='/auth/login']");
       Assert.Contains("Se connecter", loginButton.TextContent);
-
-      var registerButton = cut.Find("a.btn-primary[href='/auth/register']");
-      Assert.Contains("S'inscrire", registerButton.TextContent);
     }
 
     [Fact]

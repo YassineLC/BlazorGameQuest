@@ -1,0 +1,34 @@
+@page "/auth/profile"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Mon Profil - BlazorGameQuest</PageTitle>
+
+<div class="container mt-4">
+    <h3 class="text-white mb-4">Mon Profil</h3>
+    
+    <AuthorizeView>
+        <Authorized>
+            <div class="p-4 rounded" style="background-color: rgba(0,0,0,0.5); border: 1px solid #444;">
+                <div class="row">
+                    <div class="col-md-12 text-white">
+                        <div class="mb-3">
+                            <label class="text-white">Nom d'utilisateur</label>
+                            <div class="fs-4 fw-bold">@context.User.Identity?.Name</div>
+                        </div>
+                        
+                        @* Autres informations utiles à venir *@
+                    </div>
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="alert alert-warning">
+                Vous n'êtes pas connecté. <a href="auth/login">Se connecter</a>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>

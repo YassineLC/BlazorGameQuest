@@ -1,7 +1,9 @@
 using ApiGateway.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedModels.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiGateway.Controllers
 {
@@ -10,27 +12,52 @@ namespace ApiGateway.Controllers
   /// </summary>
   [ApiController]
   [Route("api/[controller]")]
+  [Produces("application/json")]
   public class RoomsController : ControllerBase
   {
     private readonly AppDbContext _db;
     public RoomsController(AppDbContext db) => _db = db;
 
     [HttpGet]
+    [SwaggerOperation(
+      Summary = "Liste les salles",
+      Description = "Retourne l'ensemble des salles avec leurs objets et pièges associés.",
+      OperationId = "Rooms_GetAll")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Room>))]
     public async Task<ActionResult<IEnumerable<Room>>> GetAll()
-        => await _db.Rooms.Include(r => r.Items).Include(r => r.Traps).ToListAsync();
+        => await _db.Rooms
+            .AsNoTracking()
+            .Include(r => r.Items)
+            .Include(r => r.Traps)
+            .ToListAsync();
 
     [HttpGet("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Récupère une salle",
+      Description = "Renvoie la salle identifiée avec ses objets et pièges.",
+      OperationId = "Rooms_GetById")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Room))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Room>> GetById(Guid id)
     {
-      var room = await _db.Rooms.Include(r => r.Items).Include(r => r.Traps)
+      var room = await _db.Rooms
+          .AsNoTracking()
+          .Include(r => r.Items)
+          .Include(r => r.Traps)
           .FirstOrDefaultAsync(r => r.Id == id);
       return room is null ? NotFound() : Ok(room);
     }
 
     [HttpPost]
+    [SwaggerOperation(
+      Summary = "Crée une salle",
+      Description = "Ajoute une nouvelle salle à un donjon existant.",
+      OperationId = "Rooms_Create")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Room))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Room>> Create(Room room)
     {
-      if (!_db.Dungeons.Any(d => d.Id == room.DungeonId))
+      if (!await _db.Dungeons.AsNoTracking().AnyAsync(d => d.Id == room.DungeonId))
         return BadRequest("Le Donjon associé n'existe pas.");
 
       _db.Rooms.Add(room);
@@ -39,6 +66,13 @@ namespace ApiGateway.Controllers
     }
 
     [HttpPut("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Met à jour une salle",
+      Description = "Actualise les informations d'une salle existante.",
+      OperationId = "Rooms_Update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, Room input)
     {
       if (id != input.Id) return BadRequest();
@@ -56,6 +90,12 @@ namespace ApiGateway.Controllers
     }
 
     [HttpDelete("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Supprime une salle",
+      Description = "Efface la salle identifiée.",
+      OperationId = "Rooms_Delete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
       var room = await _db.Rooms.FindAsync(id);
