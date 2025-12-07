@@ -2,64 +2,10 @@
 
 Un jeu d'aventure textuel développé avec Blazor WebAssembly
 
-## Version actuelle : V5 en cours
-
-### Statut V4 (Tableau de bord Admin) - COMPLÉTÉ
-- Scaffolding de 7 pages admin (Dashboard, Players, Scores, Sessions, Leaderboard, Dungeons, Export)
-- AdminController avec 10 endpoints API complets
-  - Dashboard stats (joueurs, sessions, scores, donjons, moyenne)
-  - Gestion joueurs (liste, activation/désactivation)
-  - Scores avec statistiques (moyenne, max, total)
-  - Sessions listing
-  - Leaderboard global
-  - Donjons avec statistiques
-  - Export endpoints (joueurs, scores, sessions, donjons)
-- Intégration API complète dans toutes les pages Blazor
-- AdminControllerTests avec 13 tests unitaires exhaustifs
-- E2E integration tests pour les pages admin
-- Build: 0 erreurs, 88 tests passent
-
-### Statut V5 (Authentification Keycloak) - COMPLÉTÉ
-- Keycloak configuré avec realm BlazorGameQuest
-- CustomAuthStateProvider avec support OIDC et JWT
-- Pages Login/Logout implémentées
-- Protection des endpoints admin avec [Authorize]
-- Setup Keycloak avec comptes test:
-  - **user1** / **1234** (Player)
-  - **user2** / **1234** (Player)
-- Docker Compose avec services:
-  - Postgres pour données
-  - Keycloak pour authentification
-  - API Gateway
-  - Client Blazor
-- Scripts de setup automatique
-
 ### Prérequis
-
-Depuis le répertoire racine du projet, on exécute :
-
-```powershell
-cd tests/BlazorGame.Client.Tests
-dotnet test
-```
-
-## Mise en place locale et tests de la version 2
-
-### Prérequis additionnels
 
 - **Entity Framework Core Tools** : `dotnet tool install --global dotnet-ef` (optionnel, uniquement pour les migrations si vous repassez à une base persistante)
 
-### Lancement de l'API
-
-```bash
-cd src/ApiGateway
-dotnet run
-```
-vers de style Metroidvania.
-
-![Build Status](https://github.com/YassineLC/BlazorGameQuest/workflows/Build/badge.svg)
-![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Fonctionnalités
 
