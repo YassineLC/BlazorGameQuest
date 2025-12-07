@@ -1,12 +1,16 @@
+using System.Linq;
 using ApiGateway.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedModels.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiGateway.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
+  [Produces("application/json")]
   public class PlayController : ControllerBase
   {
     private readonly AppDbContext _db;
@@ -16,6 +20,12 @@ namespace ApiGateway.Controllers
     /// Démarre une session de jeu pour un joueur (crée l'utilisateur s'il n'existe pas)
     /// </summary>
     [HttpPost("start")]
+    [SwaggerOperation(
+      Summary = "Démarre une session de jeu",
+      Description = "Crée une nouvelle session pour le joueur indiqué ou un invité si aucun identifiant n'est fourni.",
+      OperationId = "Play_StartSession")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(GameSession))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<GameSession>> StartSession([FromBody] StartSessionRequest req)
     {
       Guid playerId;
@@ -36,7 +46,6 @@ namespace ApiGateway.Controllers
             Role = UserRole.Player
           };
           _db.Users.Add(newUser);
-          await _db.SaveChangesAsync();
           playerId = newUser.Id;
         }
         else
@@ -47,17 +56,16 @@ namespace ApiGateway.Controllers
       else
       {
         // Rechercher ou créer un utilisateur invité
-        var guest = await _db.Users.FirstOrDefaultAsync(u => u.Username == "guest");
+        var guest = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Username == "guest");
         if (guest == null)
         {
           guest = new User { Username = "guest", Email = "guest@local", PasswordHash = "N/A", Role = UserRole.Player };
           _db.Users.Add(guest);
-          await _db.SaveChangesAsync();
         }
         playerId = guest.Id;
       }
 
-      if (!await _db.Dungeons.AnyAsync(d => d.Id == req.DungeonId)) return BadRequest("Dungeon not found");
+      if (!await _db.Dungeons.AsNoTracking().AnyAsync(d => d.Id == req.DungeonId)) return BadRequest("Dungeon not found");
 
       var session = new GameSession
       {
@@ -71,13 +79,19 @@ namespace ApiGateway.Controllers
       _db.GameSessions.Add(session);
       await _db.SaveChangesAsync();
 
-      return CreatedAtAction(null, session);
+      return CreatedAtAction(nameof(StartSession), new { sessionId = session.Id }, session);
     }
 
     /// <summary>
     /// Marque la visite d'une salle par la session (ajoute les points, peut terminer la session)
     /// </summary>
     [HttpPost("visit")]
+    [SwaggerOperation(
+      Summary = "Enregistre la visite d'une salle",
+      Description = "Applique les règles de score pour la salle visitée et renvoie le score mis à jour ainsi que les salles suivantes.",
+      OperationId = "Play_VisitRoom")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VisitResult))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VisitResult>> VisitRoom([FromBody] VisitRoomRequest req)
     {
       var session = await _db.GameSessions.FindAsync(req.SessionId);
@@ -101,11 +115,10 @@ namespace ApiGateway.Controllers
       };
 
       // Chance d'échec réduite pour les choix prudents
-      var rnd = new Random();
       var difficultyPenalty = room.Difficulty == RoomDifficulty.Hard ? 0.15 : room.Difficulty == RoomDifficulty.Medium ? 0.08 : 0.03;
       var failChance = Math.Clamp(0.05 + difficultyPenalty - (modifier - 1.0) * 0.05, 0.0, 0.9);
 
-      var failed = rnd.NextDouble() < failChance;
+      var failed = Random.Shared.NextDouble() < failChance;
 
       int gained = failed ? (int)Math.Floor(points * modifier * 0.25) : (int)Math.Ceiling(points * modifier);
 
@@ -124,7 +137,7 @@ namespace ApiGateway.Controllers
 
       await _db.SaveChangesAsync();
 
-      var nextIds = room.NextRoomIds;
+      var nextIds = room.NextRoomIds?.ToList() ?? new List<Guid>();
 
       var result = new VisitResult
       {
@@ -141,6 +154,12 @@ namespace ApiGateway.Controllers
     /// Termine explicitement la session et enregistre le score
     /// </summary>
     [HttpPost("end")]
+    [SwaggerOperation(
+      Summary = "Termine une session",
+      Description = "Clôture la session de jeu et persiste le score si cela n'a pas encore été fait.",
+      OperationId = "Play_EndSession")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> EndSession([FromBody] EndSessionRequest req)
     {
       var session = await _db.GameSessions.FindAsync(req.SessionId);

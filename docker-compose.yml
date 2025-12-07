@@ -11,8 +11,8 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - DISABLE_HTTPS_REDIRECTION=true
       - UseInMemoryDatabase=true
-      - Keycloak__Authority=http://keycloak:8080/realms/BlazorGameQuest
-      - Keycloak__ValidIssuer=http://localhost:8080/realms/BlazorGameQuest
+      - Keycloak__Authority=http://keycloak:8080/realms/blazorgamequest
+      - Keycloak__ValidIssuer=http://localhost:8080/realms/blazorgamequest
     ports:
       - "5003:8080"
     networks:
@@ -51,6 +51,9 @@ services:
       - UseInMemoryDatabase=true
       - Services__AuthService=http://auth-service:8080
       - Services__GameService=http://game-service:8080
+      - Keycloak__Authority=http://keycloak:8080/realms/blazorgamequest
+      - Keycloak__ValidIssuer=http://localhost:8080/realms/blazorgamequest
+      - Keycloak__JwksUri=http://keycloak:8080/realms/blazorgamequest/protocol/openid-connect/certs
     ports:
       - "5001:8080"
     depends_on:

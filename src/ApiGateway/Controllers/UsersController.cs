@@ -1,7 +1,9 @@
 using ApiGateway.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedModels.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiGateway.Controllers
 {
@@ -10,6 +12,7 @@ namespace ApiGateway.Controllers
   /// </summary>
   [ApiController]
   [Route("api/[controller]")]
+  [Produces("application/json")]
   public class UsersController : ControllerBase
   {
     private readonly AppDbContext _db;
@@ -17,19 +20,38 @@ namespace ApiGateway.Controllers
 
     /// <summary>Retourne la liste complète des utilisateurs </summary>
     [HttpGet]
+    [SwaggerOperation(
+      Summary = "Liste les utilisateurs",
+      Description = "Retourne l'ensemble des utilisateurs internes.",
+      OperationId = "Users_GetAll")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<User>))]
     public async Task<ActionResult<IEnumerable<User>>> GetAll()
         => await _db.Users.AsNoTracking().ToListAsync();
 
     /// <summary>Retourne un utilisateur par son Id </summary>
     [HttpGet("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Récupère un utilisateur",
+      Description = "Renvoie un utilisateur par identifiant.",
+      OperationId = "Users_GetById")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<User>> GetById(Guid id)
     {
-      var user = await _db.Users.FindAsync(id);
+      var user = await _db.Users
+          .AsNoTracking()
+          .FirstOrDefaultAsync(u => u.Id == id);
       return user is null ? NotFound() : Ok(user);
     }
 
     /// <summary>Crée un utilisateur </summary>
     [HttpPost]
+    [SwaggerOperation(
+      Summary = "Crée un utilisateur",
+      Description = "Ajoute un nouvel utilisateur local après validation des champs requis.",
+      OperationId = "Users_Create")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<User>> Create([FromBody] User user)
     {
       if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Email))
@@ -42,6 +64,13 @@ namespace ApiGateway.Controllers
 
     /// <summary>Met à jour un utilisateur </summary>
     [HttpPut("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Met à jour un utilisateur",
+      Description = "Actualise les informations d'un utilisateur existant.",
+      OperationId = "Users_Update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] User input)
     {
       if (id != input.Id) return BadRequest("Id route ≠ Id body.");
@@ -59,6 +88,12 @@ namespace ApiGateway.Controllers
 
     /// <summary>Supprime un utilisateur </summary>
     [HttpDelete("{id:guid}")]
+    [SwaggerOperation(
+      Summary = "Supprime un utilisateur",
+      Description = "Supprime l'utilisateur correspondant à l'identifiant fourni.",
+      OperationId = "Users_Delete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
       var user = await _db.Users.FindAsync(id);
@@ -71,6 +106,13 @@ namespace ApiGateway.Controllers
 
     /// <summary>Synchronise ou crée un utilisateur depuis Keycloak</summary>
     [HttpPost("sync")]
+    [SwaggerOperation(
+      Summary = "Synchronise un utilisateur Keycloak",
+      Description = "Crée ou met à jour un utilisateur local à partir des informations Keycloak.",
+      OperationId = "Users_Sync")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<User>> SyncUser([FromBody] SyncUserRequest request)
     {
       if (string.IsNullOrWhiteSpace(request.Id) || string.IsNullOrWhiteSpace(request.Username))

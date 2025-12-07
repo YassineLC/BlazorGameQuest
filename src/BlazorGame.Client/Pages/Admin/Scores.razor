@@ -1,58 +1,59 @@
 @page "/admin/scores"
-@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using SharedModels.Models.Admin
+@inject BlazorGame.Client.Services.Admin.IAdminApiClient AdminApiClient
+@attribute [Authorize(Roles = "admin,Admin")]
 
 <PageTitle>Scores Admin - BlazorGameQuest</PageTitle>
 
-<div class="admin-scores container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Gestion des Scores</h1>
-        <a href="/admin/dashboard" class="btn btn-secondary">← Retour</a>
-    </div>
+<section class="admin-shell admin-scores container-fluid py-4">
+    <header class="admin-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="mb-2">Gestion des scores</h1>
+            <p class="admin-subtitle">Analysez les performances et détectez les exploits hors norme.</p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour tableau de bord</a>
+    </header>
 
-    <!-- Stats résumé -->
-    @if (stats != null)
+    @if (stats is not null)
     {
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card card-medieval">
-                    <div class="card-body">
-                        <h5 class="card-title">Score Moyen</h5>
-                        <p class="card-text display-6">@stats.AverageScore</p>
-                    </div>
-                </div>
+        <div class="row g-4 mb-4 admin-stats-grid">
+            <div class="col-md-4 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Score moyen</h5>
+                    <p class="admin-stat-value">@stats.AverageScore</p>
+                </article>
             </div>
-            <div class="col-md-3">
-                <div class="card card-medieval">
-                    <div class="card-body">
-                        <h5 class="card-title">Score Maximum</h5>
-                        <p class="card-text display-6">@stats.MaxScore</p>
-                    </div>
-                </div>
+            <div class="col-md-4 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Meilleur score</h5>
+                    <p class="admin-stat-value">@stats.MaxScore</p>
+                </article>
             </div>
-            <div class="col-md-3">
-                <div class="card card-medieval">
-                    <div class="card-body">
-                        <h5 class="card-title">Scores Total</h5>
-                        <p class="card-text display-6">@stats.TotalScores</p>
-                    </div>
-                </div>
+            <div class="col-md-4 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Total cumulé</h5>
+                    <p class="admin-stat-value">@stats.TotalScores</p>
+                </article>
             </div>
         </div>
     }
 
-    <!-- Table des scores -->
-    @if (scores == null)
+    @if (isLoading)
     {
-        <p class="text-center"><span class="spinner-border spinner-border-sm me-2"></span>Chargement...</p>
+        <div class="text-center py-5">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <span>Chargement des scores...</span>
+        </div>
     }
-    else if (!scores.Any())
+    else if (scores.Count == 0)
     {
-        <div class="alert alert-info">Aucun score enregistré.</div>
+        <div class="alert alert-info admin-alert">Aucun score enregistré pour le moment.</div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-striped card-medieval">
+        <div class="table-responsive admin-table-wrapper">
+            <table class="table table-striped table-hover card-medieval admin-table">
                 <thead>
                     <tr>
                         <th>Joueur</th>
@@ -60,72 +61,58 @@
                         <th>Score</th>
                         <th>Kills</th>
                         <th>Trésors</th>
-                        <th>Pièges Évités</th>
-                        <th>Boss Vaincu</th>
+                        <th>Pièges évités</th>
+                        <th>Boss</th>
                         <th>Obtenu</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var s in scores)
+                    @foreach (var score in scores)
                     {
                         <tr>
-                            <td>@s.PlayerName</td>
-                            <td>@s.DungeonName</td>
-                            <td class="fw-bold">@s.FinalScore</td>
-                            <td>@s.KillCount</td>
-                            <td>@s.TreasureCount</td>
-                            <td>@s.TrapAvoidedCount</td>
-                            <td>@(s.IsBossDefeated ? "Oui" : "Non")</td>
-                            <td>@s.AchievedAt.ToLocalTime().ToString("g")</td>
+                            <td class="fw-bold">@score.PlayerName</td>
+                            <td>@score.DungeonName</td>
+                            <td class="admin-cell-highlight">@score.FinalScore</td>
+                            <td>@score.KillCount</td>
+                            <td>@score.TreasureCount</td>
+                            <td>@score.TrapAvoidedCount</td>
+                            <td>@(score.IsBossDefeated ? "Oui" : "Non")</td>
+                            <td>@score.AchievedAt.ToLocalTime().ToString("g")</td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
     }
-</div>
+</section>
 
 @code {
-    [Inject]
-    private HttpClient Http { get; set; } = null!;
-
-    private List<ScoreInfo>? scores;
-    private ScoresStatsInfo? stats;
-
-    private class ScoreInfo
-    {
-        public string PlayerName { get; set; } = string.Empty;
-        public string DungeonName { get; set; } = string.Empty;
-        public int FinalScore { get; set; }
-        public int KillCount { get; set; }
-        public int TreasureCount { get; set; }
-        public int TrapAvoidedCount { get; set; }
-        public bool IsBossDefeated { get; set; }
-        public DateTime AchievedAt { get; set; }
-    }
-
-    private class ScoresStatsInfo
-    {
-        public int AverageScore { get; set; }
-        public int MaxScore { get; set; }
-        public int TotalScores { get; set; }
-    }
+    private readonly List<ScoreAdminDto> scores = new();
+    private ScoresStatsDto? stats;
+    private bool isLoading;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
+        await LoadDataAsync();
     }
 
-    private async Task LoadData()
+    private async Task LoadDataAsync()
     {
         try
         {
-            scores = await Http.GetFromJsonAsync<List<ScoreInfo>>("api/admin/scores") ?? new List<ScoreInfo>();
-            stats = await Http.GetFromJsonAsync<ScoresStatsInfo>("api/admin/scores-stats");
+            isLoading = true;
+            var data = await AdminApiClient.GetScoresAsync();
+            scores.Clear();
+            scores.AddRange(data);
+            stats = await AdminApiClient.GetScoresStatsAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erreur scores: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 }

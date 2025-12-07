@@ -1,5 +1,6 @@
 using BlazorGame.Client;
 using BlazorGame.Client.Services;
+using BlazorGame.Client.Services.Admin;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -22,5 +23,6 @@ builder.Services.AddScoped<DungeonService>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ScoresService>();
+builder.Services.AddScoped<IAdminApiClient, AdminApiClient>();
 
 await builder.Build().RunAsync();

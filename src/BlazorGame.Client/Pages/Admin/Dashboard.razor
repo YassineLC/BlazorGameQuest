@@ -1,105 +1,95 @@
 @page "/admin/dashboard"
-@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using SharedModels.Models.Admin
+@inject BlazorGame.Client.Services.Admin.IAdminApiClient AdminApiClient
+@attribute [Authorize(Roles = "admin,Admin")]
 
 <PageTitle>Tableau de Bord Admin - BlazorGameQuest</PageTitle>
 
-<div class="admin-dashboard container-fluid py-4">
-    <h1 class="mb-4">Tableau de Bord Admin</h1>
+<section class="admin-shell admin-dashboard container-fluid py-4">
+    <header class="admin-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="mb-2">Tableau de bord administrateur</h1>
+            <p class="admin-subtitle">Pilotez l'ensemble du royaume : joueurs, donjons et performances.</p>
+        </div>
+        <span class="admin-meta">Dernière mise à jour&nbsp;: @(dashboardStats?.LastUpdated.ToLocalTime().ToString("g") ?? "N/A")</span>
+    </header>
 
-    <div class="row">
-        <!-- Cards résumé -->
-        <div class="col-md-3 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Joueurs Actifs</h5>
-                    <p class="card-text display-6">@totalPlayers</p>
-                    <a href="/admin/players" class="btn btn-sm btn-primary">Gérer</a>
-                </div>
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <span>Chargement des statistiques...</span>
+        </div>
+    }
+    else if (dashboardStats is null)
+    {
+        <div class="alert alert-danger admin-alert">Impossible de récupérer les statistiques du tableau de bord.</div>
+    }
+    else
+    {
+        <div class="row g-4 admin-stats-grid">
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Joueurs actifs</h5>
+                    <p class="admin-stat-value">@dashboardStats.TotalPlayers</p>
+                    <a href="/admin/players" class="btn btn-primary btn-sm">Gérer</a>
+                </article>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Parties jouées</h5>
+                    <p class="admin-stat-value">@dashboardStats.TotalSessions</p>
+                    <a href="/admin/sessions" class="btn btn-primary btn-sm">Consulter</a>
+                </article>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Score moyen</h5>
+                    <p class="admin-stat-value">@dashboardStats.AverageScore</p>
+                    <a href="/admin/sessions" class="btn btn-primary btn-sm">Analyser</a>
+                </article>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <article class="card card-medieval admin-stat-card">
+                    <h5>Donjons créés</h5>
+                    <p class="admin-stat-value">@dashboardStats.TotalDungeons</p>
+                    <a href="/admin/dungeons" class="btn btn-primary btn-sm">Explorer</a>
+                </article>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Parties Jouées</h5>
-                    <p class="card-text display-6">@totalSessions</p>
-                    <a href="/admin/sessions" class="btn btn-sm btn-primary">Voir</a>
-                </div>
+        <section class="admin-quick-links mt-5">
+            <h3 class="mb-3">Navigation rapide</h3>
+            <div class="admin-chip-group">
+                <a class="admin-chip" href="/admin/players"><i data-feather="users"></i><span>Gestion des joueurs</span></a>
+                <a class="admin-chip" href="/admin/sessions"><i data-feather="compass"></i><span>Sessions en cours</span></a>
+                <a class="admin-chip" href="/admin/dungeons"><i data-feather="map"></i><span>Donjons</span></a>
+                <a class="admin-chip" href="/admin/leaderboard"><i data-feather="award"></i><span>Leaderboard</span></a>
+                <a class="admin-chip" href="/admin/export"><i data-feather="download"></i><span>Exports rapides</span></a>
             </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Score Moyen</h5>
-                    <p class="card-text display-6">@averageScore</p>
-                    <a href="/admin/scores" class="btn btn-sm btn-primary">Détails</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Donjons Créés</h5>
-                    <p class="card-text display-6">@totalDungeons</p>
-                    <a href="/admin/dungeons" class="btn btn-sm btn-primary">Voir</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation Admin -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <h3>Accès Rapide</h3>
-            <div class="btn-group" role="group">
-                <a href="/admin/players" class="btn btn-outline-primary">Gestion Joueurs</a>
-                <a href="/admin/scores" class="btn btn-outline-primary">Scores & Classement</a>
-                <a href="/admin/sessions" class="btn btn-outline-primary">Parties</a>
-                <a href="/admin/dungeons" class="btn btn-outline-primary">Donjons</a>
-                <a href="/admin/leaderboard" class="btn btn-outline-info">Leaderboard</a>
-                <a href="/admin/export" class="btn btn-outline-success">Exporter Données</a>
-            </div>
-        </div>
-    </div>
-</div>
+        </section>
+    }
+</section>
 
 @code {
-    [Inject]
-    private HttpClient Http { get; set; } = null!;
-
-    private int totalPlayers = 0;
-    private int totalSessions = 0;
-    private int averageScore = 0;
-    private int totalDungeons = 0;
-
-    private class DashboardStats
-    {
-        public int TotalPlayers { get; set; }
-        public int TotalSessions { get; set; }
-        public int TotalScores { get; set; }
-        public int TotalDungeons { get; set; }
-        public int AverageScore { get; set; }
-        public DateTime LastUpdated { get; set; }
-    }
+    private DashboardStatsDto? dashboardStats;
+    private bool isLoading;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var stats = await Http.GetFromJsonAsync<DashboardStats>("api/admin/dashboard-stats");
-            if (stats != null)
-            {
-                totalPlayers = stats.TotalPlayers;
-                totalSessions = stats.TotalSessions;
-                averageScore = stats.AverageScore;
-                totalDungeons = stats.TotalDungeons;
-            }
+            isLoading = true;
+            dashboardStats = await AdminApiClient.GetDashboardStatsAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erreur dashboard: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 }

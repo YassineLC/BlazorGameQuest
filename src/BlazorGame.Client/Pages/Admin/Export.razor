@@ -1,143 +1,95 @@
 @page "/admin/export"
-@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
+@inject BlazorGame.Client.Services.Admin.IAdminApiClient AdminApiClient
+@inject IJSRuntime Js
+@attribute [Authorize(Roles = "admin,Admin")]
 
 <PageTitle>Export Admin - BlazorGameQuest</PageTitle>
 
-<div class="admin-export container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Exporter les Données</h1>
-        <a href="/admin/dashboard" class="btn btn-secondary">← Retour</a>
+<section class="admin-shell admin-export container-fluid py-4">
+    <header class="admin-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="mb-2">Exports</h1>
+            <p class="admin-subtitle">Générez les instantanés dont vous avez besoin pour analyser le leaderboard.</p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour tableau de bord</a>
+    </header>
+
+    <div class="row g-4">
+        @foreach (var export in exports)
+        {
+            <div class="col-md-6">
+                <article class="card card-medieval admin-export-card">
+                    <h5 class="mb-2">@export.Title</h5>
+                    <p class="mb-3">@export.Description</p>
+                    <button class="btn btn-primary" disabled="@export.IsRunning" @onclick="() => TriggerExportAsync(export)">
+                        @if (export.IsRunning)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <span>@export.ButtonLabel</span>
+                    </button>
+                </article>
+            </div>
+        }
     </div>
 
-    <div class="row">
-        <!-- Players Export -->
-        <div class="col-md-6 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Exporter les Joueurs</h5>
-                    <p class="card-text">Télécharger la liste complète des joueurs en CSV</p>
-                    <button @onclick="ExportPlayers" class="btn btn-primary">
-                        @if (isExportingPlayers)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                            <span>Exporting...</span>
-                        }
-                        else
-                        {
-                            <span>Exporter les joueurs</span>
-                        }
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Scores Export -->
-        <div class="col-md-6 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Exporter les Scores</h5>
-                    <p class="card-text">Télécharger la liste complète des scores en CSV</p>
-                    <button @onclick="ExportScores" class="btn btn-primary">
-                        @if (isExportingScores)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                            <span>Exporting...</span>
-                        }
-                        else
-                        {
-                            <span>Exporter les scores</span>
-                        }
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sessions Export -->
-        <div class="col-md-6 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Exporter les Sessions</h5>
-                    <p class="card-text">Télécharger la liste complète des sessions en CSV</p>
-                    <button @onclick="ExportSessions" class="btn btn-primary">
-                        @if (isExportingSessions)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                            <span>Exporting...</span>
-                        }
-                        else
-                        {
-                            <span>Exporter les sessions</span>
-                        }
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Database Export -->
-        <div class="col-md-6 mb-3">
-            <div class="card card-medieval">
-                <div class="card-body">
-                    <h5 class="card-title">Exporter la Base de Données</h5>
-                    <p class="card-text">Télécharger une sauvegarde JSON complète</p>
-                    <button @onclick="ExportDatabase" class="btn btn-primary">
-                        @if (isExportingDb)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                            <span>Exporting...</span>
-                        }
-                        else
-                        {
-                            <span>Exporter la DB</span>
-                        }
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if (!string.IsNullOrEmpty(message))
+    @if (!string.IsNullOrWhiteSpace(statusMessage))
     {
-        <div class="alert alert-info mt-4" role="alert">@message</div>
+        <div class="alert alert-info admin-alert mt-4">@statusMessage</div>
     }
-</div>
+</section>
 
 @code {
-    [Inject]
-    private HttpClient Http { get; set; } = null!;
-
-    private bool isExportingPlayers = false;
-    private bool isExportingScores = false;
-    private bool isExportingSessions = false;
-    private bool isExportingDb = false;
-    private string? message;
-
-    private async Task ExportPlayers() => await ExportData("api/admin/export/players", "joueurs", () => isExportingPlayers = !isExportingPlayers);
-    private async Task ExportScores() => await ExportData("api/admin/export/scores", "scores", () => isExportingScores = !isExportingScores);
-    private async Task ExportSessions() => await ExportData("api/admin/export/sessions", "sessions", () => isExportingSessions = !isExportingSessions);
-    private async Task ExportDatabase() => await ExportData("api/admin/export/dungeons", "base de données", () => isExportingDb = !isExportingDb);
-
-    private async Task ExportData(string endpoint, string filename, Action toggleState)
+    private readonly List<ExportDescriptor> exports = new()
     {
+        new("Exporter les joueurs", "Télécharger la liste complète des aventuriers au format JSON.", "api/admin/export/players", "Exporter les joueurs"),
+        new("Exporter les parties", "Sauvegardez tous les runs et leurs métadonnées.", "api/admin/export/sessions", "Exporter les parties"),
+        new("Exporter les donjons", "Archivez la configuration actuelle des donjons.", "api/admin/export/dungeons", "Exporter les donjons")
+    };
+
+    private string? statusMessage;
+
+    private async Task TriggerExportAsync(ExportDescriptor export)
+    {
+        if (export.IsRunning)
+        {
+            return;
+        }
+
         try
         {
-            toggleState();
-            var response = await Http.GetAsync(endpoint);
-            if (response.IsSuccessStatusCode)
-            {
-                message = $"✓ Export {filename} réussi";
-            }
-            else
-            {
-                message = $"✗ Erreur: {response.StatusCode}";
-            }
+            export.IsRunning = true;
+            var file = await AdminApiClient.DownloadExportAsync(export.Endpoint);
+            var base64 = System.Convert.ToBase64String(file.Content);
+            await Js.InvokeVoidAsync("DownloadHelpers.saveBase64File", file.FileName, file.ContentType, base64);
+            statusMessage = $"✓ Export enregistré : {file.FileName}";
         }
         catch (Exception ex)
         {
-            message = $"✗ Erreur: {ex.Message}";
+            statusMessage = $"✗ Erreur lors de l'export {export.Title.ToLower()}: {ex.Message}";
         }
         finally
         {
-            toggleState();
+            export.IsRunning = false;
         }
+    }
+
+    private sealed class ExportDescriptor
+    {
+        public ExportDescriptor(string title, string description, string endpoint, string buttonLabel)
+        {
+            Title = title;
+            Description = description;
+            Endpoint = endpoint;
+            ButtonLabel = buttonLabel;
+        }
+
+        public string Title { get; }
+        public string Description { get; }
+        public string Endpoint { get; }
+        public string ButtonLabel { get; }
+        public bool IsRunning { get; set; }
     }
 }

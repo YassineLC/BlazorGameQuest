@@ -1,10 +1,13 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiGateway.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
 public class AuthController : ControllerBase
 {
     private readonly IHttpClientFactory _httpFactory;
@@ -17,6 +20,13 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [SwaggerOperation(
+        Summary = "Authentifie un utilisateur",
+        Description = "Proxifie l'appel de connexion vers le service d'authentification et retourne la réponse brute de Keycloak.",
+        OperationId = "Auth_Login")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JsonElement))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] JsonElement loginRequest)
     {
         try
