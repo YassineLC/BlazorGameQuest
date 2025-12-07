@@ -1,0 +1,82 @@
+@page "/admin/dungeons"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Donjons Admin - BlazorGameQuest</PageTitle>
+
+<div class="admin-dungeons container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestion des Donjons</h1>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour</a>
+    </div>
+
+    @if (dungeons == null)
+    {
+        <p class="text-center"><span class="spinner-border spinner-border-sm me-2"></span>Chargement...</p>
+    }
+    else if (!dungeons.Any())
+    {
+        <div class="alert alert-info">Aucun donjon enregistré.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped card-medieval">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Profondeur Max</th>
+                        <th>Salles</th>
+                        <th>Événements</th>
+                        <th>Parties</th>
+                        <th>Créé</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in dungeons)
+                    {
+                        <tr>
+                            <td>@d.Name</td>
+                            <td>@d.MaxDepth</td>
+                            <td>@d.RoomCount</td>
+                            <td>@d.EventCount</td>
+                            <td>@d.SessionCount</td>
+                            <td>@d.CreatedAt.ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<DungeonInfo>? dungeons;
+
+    private class DungeonInfo
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int MaxDepth { get; set; }
+        public int RoomCount { get; set; }
+        public int EventCount { get; set; }
+        public int SessionCount { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // TODO: Récupérer les donjons depuis l'API
+            dungeons = new List<DungeonInfo>
+            {
+                new() { Id = Guid.NewGuid(), Name = "Dungeon of Shadows", MaxDepth = 7, RoomCount = 12, EventCount = 8, SessionCount = 5, CreatedAt = DateTime.UtcNow.AddDays(-10) },
+                new() { Id = Guid.NewGuid(), Name = "Cursed Caverns", MaxDepth = 6, RoomCount = 10, EventCount = 6, SessionCount = 3, CreatedAt = DateTime.UtcNow.AddDays(-5) },
+            };
+        }
+        catch (Exception ex)
+        {
+            // TODO: Afficher erreur
+        }
+    }
+}

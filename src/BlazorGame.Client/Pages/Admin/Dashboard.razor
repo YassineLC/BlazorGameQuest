@@ -1,0 +1,105 @@
+@page "/admin/dashboard"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Tableau de Bord Admin - BlazorGameQuest</PageTitle>
+
+<div class="admin-dashboard container-fluid py-4">
+    <h1 class="mb-4">Tableau de Bord Admin</h1>
+
+    <div class="row">
+        <!-- Cards résumé -->
+        <div class="col-md-3 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Joueurs Actifs</h5>
+                    <p class="card-text display-6">@totalPlayers</p>
+                    <a href="/admin/players" class="btn btn-sm btn-primary">Gérer</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Parties Jouées</h5>
+                    <p class="card-text display-6">@totalSessions</p>
+                    <a href="/admin/sessions" class="btn btn-sm btn-primary">Voir</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Score Moyen</h5>
+                    <p class="card-text display-6">@averageScore</p>
+                    <a href="/admin/scores" class="btn btn-sm btn-primary">Détails</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Donjons Créés</h5>
+                    <p class="card-text display-6">@totalDungeons</p>
+                    <a href="/admin/dungeons" class="btn btn-sm btn-primary">Voir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Admin -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3>Accès Rapide</h3>
+            <div class="btn-group" role="group">
+                <a href="/admin/players" class="btn btn-outline-primary">Gestion Joueurs</a>
+                <a href="/admin/scores" class="btn btn-outline-primary">Scores & Classement</a>
+                <a href="/admin/sessions" class="btn btn-outline-primary">Parties</a>
+                <a href="/admin/dungeons" class="btn btn-outline-primary">Donjons</a>
+                <a href="/admin/leaderboard" class="btn btn-outline-info">Leaderboard</a>
+                <a href="/admin/export" class="btn btn-outline-success">Exporter Données</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    private int totalPlayers = 0;
+    private int totalSessions = 0;
+    private int averageScore = 0;
+    private int totalDungeons = 0;
+
+    private class DashboardStats
+    {
+        public int TotalPlayers { get; set; }
+        public int TotalSessions { get; set; }
+        public int TotalScores { get; set; }
+        public int TotalDungeons { get; set; }
+        public int AverageScore { get; set; }
+        public DateTime LastUpdated { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var stats = await Http.GetFromJsonAsync<DashboardStats>("api/admin/dashboard-stats");
+            if (stats != null)
+            {
+                totalPlayers = stats.TotalPlayers;
+                totalSessions = stats.TotalSessions;
+                averageScore = stats.AverageScore;
+                totalDungeons = stats.TotalDungeons;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur dashboard: {ex.Message}");
+        }
+    }
+}

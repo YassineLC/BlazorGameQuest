@@ -1,0 +1,130 @@
+@page "/admin/players"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Gestion Joueurs - BlazorGameQuest</PageTitle>
+
+<div class="admin-players container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestion des Joueurs</h1>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour</a>
+    </div>
+
+    @if (players == null)
+    {
+        <p class="text-center"><span class="spinner-border spinner-border-sm me-2"></span>Chargement...</p>
+    }
+    else if (!players.Any())
+    {
+        <div class="alert alert-info">Aucun joueur enregistré.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped card-medieval">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom d'utilisateur</th>
+                        <th>Email</th>
+                        <th>Parties Jouées</th>
+                        <th>Score Moyen</th>
+                        <th>État</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in players)
+                    {
+                        <tr>
+                            <td>@p.Id</td>
+                            <td>@p.Username</td>
+                            <td>@p.Email</td>
+                            <td>@p.SessionCount</td>
+                            <td>@p.AverageScore</td>
+                            <td>
+                                @if (p.IsActive)
+                                {
+                                    <span class="badge bg-success">Actif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Désactivé</span>
+                                }
+                            </td>
+                            <td>
+                                @if (p.IsActive)
+                                {
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DisablePlayer(p.Id)">Désactiver</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-success" @onclick="() => EnablePlayer(p.Id)">Activer</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    private List<PlayerInfo>? players;
+
+    private class PlayerInfo
+    {
+        public Guid Id { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public int SessionCount { get; set; }
+        public int AverageScore { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPlayers();
+    }
+
+    private async Task LoadPlayers()
+    {
+        try
+        {
+            players = await Http.GetFromJsonAsync<List<PlayerInfo>>("api/admin/players") ?? new List<PlayerInfo>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur: {ex.Message}");
+        }
+    }
+
+    private async Task DisablePlayer(Guid playerId)
+    {
+        try
+        {
+            await Http.PutAsync($"api/admin/players/{playerId}/disable", null);
+            await LoadPlayers();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur: {ex.Message}");
+        }
+    }
+
+    private async Task EnablePlayer(Guid playerId)
+    {
+        try
+        {
+            await Http.PutAsync($"api/admin/players/{playerId}/enable", null);
+            await LoadPlayers();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur: {ex.Message}");
+        }
+    }
+}

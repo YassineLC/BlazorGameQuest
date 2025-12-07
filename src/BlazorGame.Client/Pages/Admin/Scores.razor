@@ -1,0 +1,131 @@
+@page "/admin/scores"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Scores Admin - BlazorGameQuest</PageTitle>
+
+<div class="admin-scores container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestion des Scores</h1>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour</a>
+    </div>
+
+    <!-- Stats résumé -->
+    @if (stats != null)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-medieval">
+                    <div class="card-body">
+                        <h5 class="card-title">Score Moyen</h5>
+                        <p class="card-text display-6">@stats.AverageScore</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-medieval">
+                    <div class="card-body">
+                        <h5 class="card-title">Score Maximum</h5>
+                        <p class="card-text display-6">@stats.MaxScore</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-medieval">
+                    <div class="card-body">
+                        <h5 class="card-title">Scores Total</h5>
+                        <p class="card-text display-6">@stats.TotalScores</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Table des scores -->
+    @if (scores == null)
+    {
+        <p class="text-center"><span class="spinner-border spinner-border-sm me-2"></span>Chargement...</p>
+    }
+    else if (!scores.Any())
+    {
+        <div class="alert alert-info">Aucun score enregistré.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped card-medieval">
+                <thead>
+                    <tr>
+                        <th>Joueur</th>
+                        <th>Donjon</th>
+                        <th>Score</th>
+                        <th>Kills</th>
+                        <th>Trésors</th>
+                        <th>Pièges Évités</th>
+                        <th>Boss Vaincu</th>
+                        <th>Obtenu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in scores)
+                    {
+                        <tr>
+                            <td>@s.PlayerName</td>
+                            <td>@s.DungeonName</td>
+                            <td class="fw-bold">@s.FinalScore</td>
+                            <td>@s.KillCount</td>
+                            <td>@s.TreasureCount</td>
+                            <td>@s.TrapAvoidedCount</td>
+                            <td>@(s.IsBossDefeated ? "Oui" : "Non")</td>
+                            <td>@s.AchievedAt.ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    private List<ScoreInfo>? scores;
+    private ScoresStatsInfo? stats;
+
+    private class ScoreInfo
+    {
+        public string PlayerName { get; set; } = string.Empty;
+        public string DungeonName { get; set; } = string.Empty;
+        public int FinalScore { get; set; }
+        public int KillCount { get; set; }
+        public int TreasureCount { get; set; }
+        public int TrapAvoidedCount { get; set; }
+        public bool IsBossDefeated { get; set; }
+        public DateTime AchievedAt { get; set; }
+    }
+
+    private class ScoresStatsInfo
+    {
+        public int AverageScore { get; set; }
+        public int MaxScore { get; set; }
+        public int TotalScores { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            scores = await Http.GetFromJsonAsync<List<ScoreInfo>>("api/admin/scores") ?? new List<ScoreInfo>();
+            stats = await Http.GetFromJsonAsync<ScoresStatsInfo>("api/admin/scores-stats");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur scores: {ex.Message}");
+        }
+    }
+}

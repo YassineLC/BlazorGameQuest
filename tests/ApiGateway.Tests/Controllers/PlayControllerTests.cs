@@ -29,7 +29,7 @@ namespace ApiGateway.Tests.Controllers
       await db.SaveChangesAsync();
 
       var ctrl = new PlayController(db);
-      var req = new StartSessionRequest(null, dungeon.Id);
+      var req = new StartSessionRequest(null, dungeon.Id, null, null);
 
       var result = await ctrl.StartSession(req);
 

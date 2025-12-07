@@ -1,0 +1,143 @@
+@page "/admin/export"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Export Admin - BlazorGameQuest</PageTitle>
+
+<div class="admin-export container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Exporter les Données</h1>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour</a>
+    </div>
+
+    <div class="row">
+        <!-- Players Export -->
+        <div class="col-md-6 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Exporter les Joueurs</h5>
+                    <p class="card-text">Télécharger la liste complète des joueurs en CSV</p>
+                    <button @onclick="ExportPlayers" class="btn btn-primary">
+                        @if (isExportingPlayers)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Exporting...</span>
+                        }
+                        else
+                        {
+                            <span>Exporter les joueurs</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scores Export -->
+        <div class="col-md-6 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Exporter les Scores</h5>
+                    <p class="card-text">Télécharger la liste complète des scores en CSV</p>
+                    <button @onclick="ExportScores" class="btn btn-primary">
+                        @if (isExportingScores)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Exporting...</span>
+                        }
+                        else
+                        {
+                            <span>Exporter les scores</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Export -->
+        <div class="col-md-6 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Exporter les Sessions</h5>
+                    <p class="card-text">Télécharger la liste complète des sessions en CSV</p>
+                    <button @onclick="ExportSessions" class="btn btn-primary">
+                        @if (isExportingSessions)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Exporting...</span>
+                        }
+                        else
+                        {
+                            <span>Exporter les sessions</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Export -->
+        <div class="col-md-6 mb-3">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Exporter la Base de Données</h5>
+                    <p class="card-text">Télécharger une sauvegarde JSON complète</p>
+                    <button @onclick="ExportDatabase" class="btn btn-primary">
+                        @if (isExportingDb)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Exporting...</span>
+                        }
+                        else
+                        {
+                            <span>Exporter la DB</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert alert-info mt-4" role="alert">@message</div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    private bool isExportingPlayers = false;
+    private bool isExportingScores = false;
+    private bool isExportingSessions = false;
+    private bool isExportingDb = false;
+    private string? message;
+
+    private async Task ExportPlayers() => await ExportData("api/admin/export/players", "joueurs", () => isExportingPlayers = !isExportingPlayers);
+    private async Task ExportScores() => await ExportData("api/admin/export/scores", "scores", () => isExportingScores = !isExportingScores);
+    private async Task ExportSessions() => await ExportData("api/admin/export/sessions", "sessions", () => isExportingSessions = !isExportingSessions);
+    private async Task ExportDatabase() => await ExportData("api/admin/export/dungeons", "base de données", () => isExportingDb = !isExportingDb);
+
+    private async Task ExportData(string endpoint, string filename, Action toggleState)
+    {
+        try
+        {
+            toggleState();
+            var response = await Http.GetAsync(endpoint);
+            if (response.IsSuccessStatusCode)
+            {
+                message = $"✓ Export {filename} réussi";
+            }
+            else
+            {
+                message = $"✗ Erreur: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"✗ Erreur: {ex.Message}";
+        }
+        finally
+        {
+            toggleState();
+        }
+    }
+}

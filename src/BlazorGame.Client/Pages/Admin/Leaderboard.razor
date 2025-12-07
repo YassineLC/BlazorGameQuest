@@ -1,0 +1,144 @@
+@page "/admin/leaderboard"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Classement Admin - BlazorGameQuest</PageTitle>
+
+<div class="admin-leaderboard container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestion du Classement</h1>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Retour</a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Top 10 Joueurs</h5>
+                    <p class="card-text">Meilleur score total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Sessions les Plus Longues</h5>
+                    <p class="card-text">Profondeur maximale atteinte</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-medieval">
+                <div class="card-body">
+                    <h5 class="card-title">Défi du Jour</h5>
+                    <p class="card-text">Leaderboard quotidien</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-3" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button @onclick='() => SetActiveTab("global")' class="nav-link @(activeTab == "global" ? "active" : "")" type="button">Global</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button @onclick='() => SetActiveTab("weekly")' class="nav-link @(activeTab == "weekly" ? "active" : "")" type="button">Hebdomadaire</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button @onclick='() => SetActiveTab("daily")' class="nav-link @(activeTab == "daily" ? "active" : "")" type="button">Quotidien</button>
+        </li>
+    </ul>
+
+    @if (leaderboardData == null)
+    {
+        <p class="text-center"><span class="spinner-border spinner-border-sm me-2"></span>Chargement...</p>
+    }
+    else if (!leaderboardData.Any())
+    {
+        <div class="alert alert-info">Aucune donnée de classement disponible.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped card-medieval">
+                <thead>
+                    <tr>
+                        <th>Rang</th>
+                        <th>Joueur</th>
+                        <th>Score</th>
+                        <th>Sessions</th>
+                        <th>Profondeur Max</th>
+                        <th>Mis à Jour</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var (item, index) in leaderboardData.Select((item, idx) => (item, idx)))
+                    {
+                        <tr>
+                            <td>
+                                <strong>@(index + 1)</strong>
+                                @if (index < 3)
+                                {
+                                    if (index == 0) { <span class="badge bg-warning text-dark ms-2">Gold</span> }
+                                    else if (index == 1) { <span class="badge bg-secondary ms-2">Silver</span> }
+                                    else { <span class="badge bg-danger ms-2">Bronze</span> }
+                                }
+                            </td>
+                            <td>@item.PlayerName</td>
+                            <td class="fw-bold">@item.TotalScore</td>
+                            <td>@item.SessionCount</td>
+                            <td>@item.MaxDepthReached</td>
+                            <td>@item.LastUpdate.ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    private List<LeaderboardEntry>? leaderboardData;
+    private string activeTab = "global";
+
+    private class LeaderboardEntry
+    {
+        public int Rank { get; set; }
+        public string PlayerName { get; set; } = string.Empty;
+        public int TotalScore { get; set; }
+        public int SessionCount { get; set; }
+        public int MaxDepthReached { get; set; }
+        public DateTime LastUpdate { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLeaderboard();
+    }
+
+    private async Task LoadLeaderboard()
+    {
+        try
+        {
+            var endpoint = activeTab switch
+            {
+                "weekly" => "api/admin/leaderboard/weekly",
+                "daily" => "api/admin/leaderboard/daily",
+                _ => "api/admin/leaderboard/global"
+            };
+            leaderboardData = await Http.GetFromJsonAsync<List<LeaderboardEntry>>(endpoint) ?? new List<LeaderboardEntry>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur leaderboard: {ex.Message}");
+        }
+    }
+
+    private async Task SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        await LoadLeaderboard();
+    }
+}
