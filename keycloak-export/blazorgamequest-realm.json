@@ -393,6 +393,29 @@
   "webAuthnPolicyPasswordlessAcceptableAaguids" : [ ],
   "webAuthnPolicyPasswordlessExtraOrigins" : [ ],
   "users" : [ {
+    "id" : "92f554eb-382d-4bd7-a60e-e3c049c5f359",
+    "username" : "admin",
+    "emailVerified" : true,
+    "createdTimestamp" : 1765108903805,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "cc90daef-ac3d-418e-a47c-6bf153e60ef2",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1765108918489,
+      "secretData" : "{\"value\":\"o1hedxShPAHrUUd+d05PCyFXqSRcMFDEbw5wAiZHwhPFXXovvdwFmhI61ZaJH4IG31y2eSjcXrHa+3P7IOOWHw==\",\"salt\":\"8sqsl5RS1ec/KzV3BwuAgg==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-blazorgamequest" ],
+    "clientRoles" : {
+      "blazorgameclient" : [ "admin" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
     "id" : "08b7e303-9c4b-4b87-be9a-66791bf48da5",
     "username" : "user1",
     "email" : "user1@mail.com",
